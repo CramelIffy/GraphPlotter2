@@ -1,0 +1,27 @@
+﻿<Page x:Class="GraphPlotter2.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:GraphPlotter2"
+      mc:Ignorable="d" 
+      d:DesignHeight="900" d:DesignWidth="1600"
+      Background="WhiteSmoke"
+      Title="MainPage">
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" FontSize="14">
+            <MenuItem Header="Files">
+                <MenuItem Header="Open...">
+                    <MenuItem Header="Binary" Click="OpenBin"/>
+                    <MenuItem Header="CSV" Click="OpenCsv"/>
+                </MenuItem>
+                <MenuItem Header="Save Image" Click="SaveImage"/>
+                <MenuItem Header="Exit" Click="Exit"/>
+            </MenuItem>
+            <MenuItem Header="Settings" Click="OpenSetting"/>
+            <MenuItem Header="About" Click="OpenAbout"/>
+        </Menu>
+        <Frame Name="screen" NavigationUIVisibility="Hidden"/>
+    </DockPanel>
+</Page>

@@ -1,0 +1,78 @@
+﻿<Page x:Class="GraphPlotter2.SettingPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:GraphPlotter2"
+      mc:Ignorable="d" 
+      d:DesignHeight="900" d:DesignWidth="1600"
+      Background="WhiteSmoke"
+      Title="SettingPage">
+
+    <Page.Resources>
+        <Style x:Key="GraphSettingInput" TargetType="TextBox">
+            <Setter Property="Width" Value="Auto"/>
+            <Setter Property="Height" Value="23.84"/>
+            <Setter Property="InputMethod.IsInputMethodEnabled" Value="False"/>
+        </Style>
+    </Page.Resources>
+
+    <DockPanel>
+        <Menu DockPanel.Dock="Top" FontSize="14">
+            <MenuItem Header="Save the config" Click="SaveConfig"/>
+            <MenuItem Header= "Cancel" Click="Cancel"/>
+        </Menu>
+        <Grid>
+            <GroupBox Header="Settings" Margin="10,10,10,10" BorderBrush="Black">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <GroupBox Header="GraphContents" Margin="10,10,10,10" BorderBrush="Black">
+                        <StackPanel Orientation="Vertical">
+                            <CheckBox Content="Main Graph" IsChecked="True"/>
+                            <CheckBox Content="Sub Graph" IsChecked="True"/>
+                            <CheckBox Content="Burning Time" IsChecked="True"/>
+                            <CheckBox Content="Max Thrust" IsChecked="True"/>
+                            <CheckBox Content="Average Thrust" IsChecked="True"/>
+                            <CheckBox Content="Total Impulse" IsChecked="True"/>
+                        </StackPanel>
+                    </GroupBox>
+                    <GroupBox Grid.Column="1" Header="Other" Margin="10,10,10,10" BorderBrush="Black">
+                        <StackPanel Orientation="Horizontal">
+                            <GroupBox Grid.Column="1" Header="SettingName" Margin="5,5" BorderBrush="Black">
+                                <StackPanel Orientation="Vertical">
+                                    <Label Content="MainGraphName: " HorizontalAlignment="Right"/>
+                                    <Label Content="SubGraphName: " HorizontalAlignment="Right"/>
+                                    <Label Content="SubGraphOpacity: " HorizontalAlignment="Right"/>
+                                    <Label Content="GraphImageResolutionW: " HorizontalAlignment="Right"/>
+                                    <Label Content="GraphImageResolutionH: " HorizontalAlignment="Right"/>
+                                    <Label Content="CSV TimeColumn: " HorizontalAlignment="Right"/>
+                                    <Label Content="CSV ThrustColumn: " HorizontalAlignment="Right"/>
+                                    <Label Content="IgnitionDetectionThreshold: " HorizontalAlignment="Right"/>
+                                    <Label Content="BurnoutDetectionThreshold: " HorizontalAlignment="Right"/>
+                                    <Label Content="Prefix of Time: " HorizontalAlignment="Right"/>
+                                </StackPanel>
+                            </GroupBox>
+                            <GroupBox Grid.Column="1" Header="InputValues" Margin="5,5" BorderBrush="Black">
+                                <StackPanel Orientation="Vertical">
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" Text="MainGraph"/>
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" Text="SubGraph"/>
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="40"/>
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="1920"/>
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="1080"/>
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="1"/>
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="2"/>
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="5"/>
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="5"/>
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput_withDecimal" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="0.001"/>
+                                </StackPanel>
+                            </GroupBox>
+                        </StackPanel>
+                    </GroupBox>
+                </Grid>
+            </GroupBox>
+        </Grid>
+    </DockPanel>
+</Page>
