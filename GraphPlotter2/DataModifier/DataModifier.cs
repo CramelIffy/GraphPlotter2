@@ -6,7 +6,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace DataModifier
 {
-    class DataSet
+    internal class DataSet
     {
         internal double[] time;         //s
         internal double[] thrust;       //N
@@ -169,7 +169,7 @@ namespace DataModifier
     /// <para>Implements a Savitzky-Golay smoothing filter, as found in [1].</para>
     /// <para>[1] Sophocles J.Orfanidis. 1995. Introduction to Signal Processing. Prentice-Hall, Inc., Upper Saddle River, NJ, USA.</para>
     /// </summary>
-    public sealed class SavitzkyGolayFilter
+    internal sealed class SavitzkyGolayFilter
     {
         private readonly int sidePoints;
 
