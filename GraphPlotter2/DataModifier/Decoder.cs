@@ -9,7 +9,6 @@ namespace DataModifier
 {
     internal partial class DataModifier
     {
-
         /// <summary>
         /// Function to read CSV files and return time and thrust data.
         /// </summary>
@@ -18,7 +17,7 @@ namespace DataModifier
         /// <param name="linearEqCoefA">The value of A among the coefficients of the linear equation (Ax+B) that converts from voltage values to thrust. Default is 0.36394252776313896</param>
         /// <param name="linearEqCoefB">The value of B among the coefficients of the linear equation (Ax+B) that converts from voltage values to thrust. Default is -84.211384769940082</param>
         /// <returns></returns>
-        private static (List<(double, double)>, Exception?) DecodeCSV(string filePath, double timePrefix = 0.001, double linearEqCoefA = 0.36394252776313896, double linearEqCoefB = -84.211384769940082)
+        private static (List<(double Time, double Data)>, Exception?) DecodeCSV(string filePath, double timePrefix = 0.001, double linearEqCoefA = 0.36394252776313896, double linearEqCoefB = -84.211384769940082)
         {
             List<(double, double)> data = new();
             Exception? exception = null;
