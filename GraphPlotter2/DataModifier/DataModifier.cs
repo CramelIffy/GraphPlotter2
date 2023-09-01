@@ -6,7 +6,7 @@ using MathNet.Numerics.LinearAlgebra;
 
 namespace DataModifier
 {
-    internal class DataSet
+    class DataSet
     {
         internal double[] time;         //s
         internal double[] thrust;       //N
