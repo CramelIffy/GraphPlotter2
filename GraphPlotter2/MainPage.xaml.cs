@@ -62,7 +62,7 @@ namespace GraphPlotter2
             try
             {
                 thrustDatas.GetData(true);
-            }catch (Exception ex)
+            }catch (Exception)
             {
                 MessageBox.Show("データが読み込まれていません", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
