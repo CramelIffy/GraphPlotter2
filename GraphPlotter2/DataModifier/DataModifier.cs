@@ -16,7 +16,7 @@ namespace DataModifier
         internal double burnTime;       //s
         internal double maxThrust;      //N
         internal double avgThrust;      //N
-        internal double impluse;            //N･s
+        internal double isp;            //N･s
 
         public DataSet()
         {
@@ -28,7 +28,7 @@ namespace DataModifier
             burnTime = 0;
             maxThrust = 0;
             avgThrust = 0;
-            impluse = 0;
+            isp = 0;
         }
     }
 
@@ -150,8 +150,8 @@ namespace DataModifier
 
             // 力積の計算
             for (int i = tempData.ignitionIndex; i < tempData.burnoutIndex; i++)
-                tempData.impluse += (tempData.thrust[i + 1] + tempData.thrust[i]) * (tempData.time[i + 1] - tempData.time[i]);
-            tempData.impluse /= 2;
+                tempData.isp += (tempData.thrust[i + 1] + tempData.thrust[i]) * (tempData.time[i + 1] - tempData.time[i]);
+            tempData.isp /= 2;
 
             if (mainData == null)
                 mainData = tempData;
@@ -159,13 +159,9 @@ namespace DataModifier
                 subData = tempData;
         }
 
-        public DataSet GetData(bool isMain)
+        public DataSet? GetData(bool isMain)
         {
-            DataSet? temp = isMain ? mainData : subData;
-            if (temp != null)
-                return temp;
-            else
-                throw new InvalidOperationException();
+            return isMain ? mainData : subData;
         }
     }
 
