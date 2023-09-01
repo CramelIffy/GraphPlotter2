@@ -17,6 +17,7 @@
                     <MenuItem Header="CSV" Click="OpenCsv"/>
                 </MenuItem>
                 <MenuItem Header="Save Image" Click="SaveImage"/>
+                <MenuItem Header="Save Data As CSV" Click="SaveDataAsCsv"/>
                 <MenuItem Header="Exit" Click="Exit"/>
             </MenuItem>
             <MenuItem Header="Settings" Click="OpenSetting"/>
