@@ -52,7 +52,15 @@ namespace DataModifier
             BurningTimeEstimationFailed = new Exception("Burn time estimation failed");
         }
 
-        public void SetDatas(string filePath, bool isMain, bool isBinary, double ignitionDetectionThreshold = 0.05, double burnoutDetectionThreshold = 0.05, int sidePoints = 21, int polynomialOrder = 4)
+        public void InitData(bool isMain)
+        {
+            if (isMain)
+                mainData = null;
+            else
+                subData = null;
+        }
+
+        public void SetData(string filePath, bool isBinary, double ignitionDetectionThreshold = 0.05, double burnoutDetectionThreshold = 0.05, int sidePoints = 21, int polynomialOrder = 4)
         {
             const int requireDetectionCount = 20;
             const int iterMax = 20;
@@ -145,13 +153,13 @@ namespace DataModifier
                 tempData.isp += (tempData.thrust[i + 1] + tempData.thrust[i]) * (tempData.time[i + 1] - tempData.time[i]);
             tempData.isp /= 2;
 
-            if (isMain)
+            if (mainData == null)
                 mainData = tempData;
             else
                 subData = tempData;
         }
 
-        public DataSet? GetDatas(bool isMain)
+        public DataSet? GetData(bool isMain)
         {
             return isMain ? mainData : subData;
         }
