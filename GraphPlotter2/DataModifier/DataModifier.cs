@@ -102,7 +102,7 @@ namespace DataModifier
                 {
                     int detectCount = 0;
                     for (int i = maxThrustIndex; i >= 0; i--)
-                        if (tempData.thrust[i] < tempData.maxThrust * ignitionDetectionThreshold)
+                        if (tempData.denoisedThrust[i] < tempData.maxThrust * ignitionDetectionThreshold)
                         {
                             detectCount++;
                             if (detectCount >= requireDetectionCount)
@@ -118,7 +118,7 @@ namespace DataModifier
                 {
                     int detectCount = 0;
                     for (int i = maxThrustIndex; i < tempData.thrust.Length; i++)
-                        if (tempData.thrust[i] < tempData.maxThrust * burnoutDetectionThreshold)
+                        if (tempData.denoisedThrust[i] < tempData.maxThrust * burnoutDetectionThreshold)
                         {
                             detectCount++;
                             if (detectCount >= requireDetectionCount)
