@@ -42,14 +42,27 @@ namespace GraphPlotter2
         {
             if (ofd.ShowDialog() == true)
             {
-                thrustDatas.SetData(ofd.FileName, false);
+                try
+                {
+                    thrustDatas.SetData(ofd.FileName, false);
+                }catch (Exception ex)
+                {
+                    MessageBox.Show("読み込みに失敗しました。\nErrorMessage: " + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
         private void OpenBin(object sender, RoutedEventArgs e)
         {
             if (ofd.ShowDialog() == true)
             {
-                thrustDatas.SetData(ofd.FileName, true);
+                try
+                {
+                    thrustDatas.SetData(ofd.FileName, true);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("読み込みに失敗しました。\nErrorMessage: " + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
         }
 
