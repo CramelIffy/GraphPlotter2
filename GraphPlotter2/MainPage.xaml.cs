@@ -17,6 +17,8 @@ namespace GraphPlotter2
 
         private readonly SaveFileDialog sfd;
 
+        private ScottPlot.Plot mainPlot;
+
         readonly DataModifier.DataModifier thrustDatas;
         public MainPage()
         {
@@ -36,6 +38,16 @@ namespace GraphPlotter2
             };
 
             thrustDatas = new DataModifier.DataModifier();
+
+            mainPlot = new ScottPlot.Plot();
+            mainPlot.Clear();
+            mainPlot.Title("TEST");
+            mainPlot.Render();
+        }
+
+        private void PlotData()
+        {
+            
         }
 
         private void OpenCsv(object sender, RoutedEventArgs e)
@@ -45,7 +57,9 @@ namespace GraphPlotter2
                 try
                 {
                     thrustDatas.SetData(ofd.FileName, false);
-                }catch (Exception ex)
+                    PlotData();
+                }
+                catch (Exception ex)
                 {
                     MessageBox.Show("読み込みに失敗しました。\nErrorMessage: " + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
@@ -58,6 +72,7 @@ namespace GraphPlotter2
                 try
                 {
                     thrustDatas.SetData(ofd.FileName, true);
+                    PlotData();
                 }
                 catch (Exception ex)
                 {
@@ -87,7 +102,7 @@ namespace GraphPlotter2
                 using (FileStream fileStream = new(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
                 using (StreamWriter writer = new(fileStream, Encoding.UTF8, 4096))
                 {
-                    await writer.WriteLineAsync("time(original)(s),time(elapsed)(s),thrust(N),denoisedThrust(N),burningTime(s),maxThrust(N),averageThrust(N),totalImpluse(N·s)");
+                    await writer.WriteLineAsync("time(s),thrust(N),denoisedThrust(N),burningTime(s),maxThrust(N),averageThrust(N),totalImpluse(N·s)");
 
                     bool noDataWrittenYet = true;
                     StringBuilder buffer = new();
@@ -95,7 +110,6 @@ namespace GraphPlotter2
                     {
                         buffer.Clear();
                         buffer.Append(thrustDatas.GetData(true).time[i].ToString("F7"));
-                        buffer.Append("," + (thrustDatas.GetData(true).time[i] - thrustDatas.GetData(true).time[thrustDatas.GetData(true).ignitionIndex]).ToString("F7"));
                         buffer.Append("," + thrustDatas.GetData(true).thrust[i].ToString("F7"));
                         buffer.Append("," + thrustDatas.GetData(true).denoisedThrust[i].ToString("F7"));
                         if(noDataWrittenYet)

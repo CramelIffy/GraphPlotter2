@@ -46,10 +46,6 @@
                                     <Label Content="MainGraphName: " HorizontalAlignment="Right"/>
                                     <Label Content="SubGraphName: " HorizontalAlignment="Right"/>
                                     <Label Content="SubGraphOpacity: " HorizontalAlignment="Right"/>
-                                    <Label Content="GraphImageResolutionW: " HorizontalAlignment="Right"/>
-                                    <Label Content="GraphImageResolutionH: " HorizontalAlignment="Right"/>
-                                    <Label Content="CSV TimeColumn: " HorizontalAlignment="Right"/>
-                                    <Label Content="CSV ThrustColumn: " HorizontalAlignment="Right"/>
                                     <Label Content="IgnitionDetectionThreshold: " HorizontalAlignment="Right"/>
                                     <Label Content="BurnoutDetectionThreshold: " HorizontalAlignment="Right"/>
                                     <Label Content="Prefix of Time: " HorizontalAlignment="Right"/>
@@ -57,16 +53,12 @@
                             </GroupBox>
                             <GroupBox Grid.Column="1" Header="InputValues" Margin="5,5" BorderBrush="Black">
                                 <StackPanel Orientation="Vertical">
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" Text="MainGraph"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" Text="SubGraph"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="40"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="1920"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="1080"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="1"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="2"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="5"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="5"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" PreviewTextInput="textBoxPrice_PreviewTextInput_withDecimal" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="0.001"/>
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="MainGraphName" Text="MainGraph"/>
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="SubGraphName" Text="SubGraph"/>
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="SubGraphOpacity" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="40"/>
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="IgniDetecThresh" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="5"/>
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="BurnDetecThresh" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="5"/>
+                                    <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="PrefixOfTime" PreviewTextInput="textBoxPrice_PreviewTextInput_withDecimal" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="0.001"/>
                                 </StackPanel>
                             </GroupBox>
                         </StackPanel>

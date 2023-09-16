@@ -142,6 +142,12 @@ namespace DataModifier
             if (iterCount == iterMax)
                 throw BurningTimeEstimationFailed;
 
+            // 燃焼開始地点を0に移動
+            {
+                double ignitionTime = tempData.time[tempData.ignitionIndex];
+                tempData.time = tempData.time.AsParallel().Select(x => x - ignitionTime).ToArray();
+            }
+
             // 燃焼時間計算
             tempData.burnTime = tempData.time[tempData.burnoutIndex] - tempData.time[tempData.ignitionIndex];
 
