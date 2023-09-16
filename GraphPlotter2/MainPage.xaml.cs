@@ -171,6 +171,14 @@ namespace GraphPlotter2
             OpenFile(true);
         }
 
+        private void InitScreen(object sender, RoutedEventArgs e)
+        {
+            thrustDatas.InitData(true);
+            thrustDatas.InitData(false);
+            MainPlot.Plot.Clear();
+            MainPlot.Refresh();
+        }
+
         private void SaveImage(object sender, RoutedEventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();

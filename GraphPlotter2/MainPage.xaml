@@ -16,8 +16,11 @@
                     <MenuItem Header="Binary" Click="OpenBin"/>
                     <MenuItem Header="CSV" Click="OpenCsv"/>
                 </MenuItem>
-                <MenuItem Header="Save Image" Click="SaveImage"/>
-                <MenuItem Header="Save Data As CSV" Click="SaveDataAsCsv"/>
+                <MenuItem Header="InitScreen" Click="InitScreen"/>
+                <MenuItem Header="Save...">
+                    <MenuItem Header="Save Image" Click="SaveImage"/>
+                    <MenuItem Header="Save Data As CSV" Click="SaveDataAsCsv"/>
+                </MenuItem>
                 <MenuItem Header="Exit" Click="Exit"/>
             </MenuItem>
             <MenuItem Header="Settings" Click="OpenSetting"/>
