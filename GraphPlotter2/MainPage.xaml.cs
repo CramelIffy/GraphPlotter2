@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using System.Drawing;
 using ScottPlot;
+using ScottPlot.Plottable;
 
 namespace GraphPlotter2
 {
@@ -47,7 +48,7 @@ namespace GraphPlotter2
             thrustDatas = new DataModifier.DataModifier();
 
             MainPlot.Plot.Clear();
-            MainPlot.Plot.Title("TEST");
+            MainPlot.Plot.Title(MainWindow.SettingIO.Data.MainGraphName);
             MainPlot.Refresh();
         }
 
@@ -57,82 +58,131 @@ namespace GraphPlotter2
             int mainGraphUndenoisedOpacity = MainWindow.SettingIO.Data.UndenoisedGraphOpacity * 255 / 100;
             int burningOpacity = MainWindow.SettingIO.Data.BurningTimeOpacity * 255 / 100;
             MainPlot.Plot.Clear();
+            MainPlot.Plot.XLabel("Time (s)");
+            MainPlot.Plot.YLabel("Thrust (N)");
             // 燃焼時間を示すグラフを描画
-            MainPlot.Plot.AddFill(
-                thrustDatas.GetData(true).time.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray(),
-                thrustDatas.GetData(true).thrust.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray()
-                , 0, Color.FromArgb(burningOpacity, Color.Black));
-            // サブグラフ描画
-            try
+            if (MainWindow.SettingIO.Data.BurningTime)
             {
-                var subGraph = MainPlot.Plot.AddSignalXY(thrustDatas.GetData(false).time, thrustDatas.GetData(false).denoisedThrust, Color.FromArgb(subGraphOpacity, Color.Black));
-                subGraph.MarkerSize = 0;
-            }
-            catch (Exception ex)
-            {
+                MainPlot.Plot.AddFill(
+                    thrustDatas.GetData(true).time.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray(),
+                    thrustDatas.GetData(true).thrust.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray()
+                    , 0, Color.FromArgb(burningOpacity, Color.Black));
 
-            };
+                var burnoutLine = MainPlot.Plot.AddVerticalLine(thrustDatas.GetData(true).burnTime, Color.DarkRed, 2, LineStyle.Dot);
+                burnoutLine.Max = thrustDatas.GetData(true).thrust[thrustDatas.GetData(true).burnoutIndex];
+                burnoutLine.PositionLabel = true;
+                burnoutLine.PositionLabelBackground = burnoutLine.Color;
+            }
+            // サブグラフ描画
+            if (MainWindow.SettingIO.Data.SubGraph)
+                try
+                {
+                    var subGraph = MainPlot.Plot.AddSignalXY(thrustDatas.GetData(false).time, thrustDatas.GetData(false).denoisedThrust, Color.FromArgb(subGraphOpacity, Color.Black));
+                    subGraph.MarkerSize = 0;
+                }
+                catch (Exception)
+                {
+
+                };
             // メイングラフ描画
-            MainPlot.Plot.AddSignalXY(thrustDatas.GetData(true).time, thrustDatas.GetData(true).thrust, Color.FromArgb(mainGraphUndenoisedOpacity, Color.Black));
-            var mainGraph = MainPlot.Plot.AddSignalXY(thrustDatas.GetData(true).time, thrustDatas.GetData(true).denoisedThrust, Color.Black);
-            mainGraph.LineWidth = 2;
-            mainGraph.MarkerSize = 0;
-            MainPlot.Plot.SetAxisLimitsX(thrustDatas.GetData(true).time[thrustDatas.GetData(true).ignitionIndex] - plotMarginX, thrustDatas.GetData(true).time[thrustDatas.GetData(true).burnoutIndex] + plotMarginX);
-            MainPlot.Plot.SetAxisLimitsY(-plotMarginY, thrustDatas.GetData(true).maxThrust + plotMarginY);
+            if (MainWindow.SettingIO.Data.MainGraph)
+            {
+                MainPlot.Plot.AddSignalXY(thrustDatas.GetData(true).time, thrustDatas.GetData(true).thrust, Color.FromArgb(mainGraphUndenoisedOpacity, Color.Black));
+                var mainGraph = MainPlot.Plot.AddSignalXY(thrustDatas.GetData(true).time, thrustDatas.GetData(true).denoisedThrust, Color.Black);
+                mainGraph.LineWidth = 2;
+                mainGraph.MarkerSize = 0;
+                MainPlot.Plot.SetAxisLimitsX(thrustDatas.GetData(true).time[thrustDatas.GetData(true).ignitionIndex] - plotMarginX, thrustDatas.GetData(true).time[thrustDatas.GetData(true).burnoutIndex] + plotMarginX);
+                MainPlot.Plot.SetAxisLimitsY(-plotMarginY, thrustDatas.GetData(true).maxThrust + plotMarginY);
+            }
+            // 全力積描画
+            if (MainWindow.SettingIO.Data.TotalImpulse)
+            {
+                var ano = MainPlot.Plot.AddAnnotation(MainWindow.SettingIO.Data.MainGraphName + ": " + thrustDatas.GetData(true).impluse.ToString("F3") + "N·s", Alignment.UpperRight);
+                ano.MarginY = 10;
+                ano.Font.Size = 24;
+                ano.Shadow = false;
+                ano.BackgroundColor = Color.White;
+                if (MainWindow.SettingIO.Data.SubGraph)
+                    try
+                    {
+                        string anoStr = MainWindow.SettingIO.Data.SubGraphName + ": " + thrustDatas.GetData(false).impluse.ToString("F3") + "N·s";
+                        var anoSub = MainPlot.Plot.AddAnnotation(anoStr, Alignment.UpperRight);
+                        anoSub.MarginY = 55;
+                        anoSub.Font.Size = 24;
+                        anoSub.Shadow = false;
+                        anoSub.BackgroundColor = Color.White;
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+            }
+            // 最大推力描画
+            if (MainWindow.SettingIO.Data.MaxThrust)
+            {
+                double maxThrust = thrustDatas.GetData(true).maxThrust;
+                double maxTime = thrustDatas.GetData(true).time[Array.IndexOf(thrustDatas.GetData(true).thrust, maxThrust)];
+                var maxLine = MainPlot.Plot.AddHorizontalLine(maxThrust, Color.Navy, 2, LineStyle.Dot);
+                maxLine.Max = maxTime;
+                maxLine.PositionLabel = true;
+                maxLine.PositionLabelBackground = maxLine.Color;
+            }
+            // 平均推力描画
+            if (MainWindow.SettingIO.Data.AverageThrust)
+            {
+                var maxLine = MainPlot.Plot.AddHorizontalLine(thrustDatas.GetData(true).avgThrust, Color.FromArgb(255, 20, 20, 20), 1, LineStyle.Dash);
+                maxLine.PositionLabel = true;
+                maxLine.PositionLabelBackground = maxLine.Color;
+            }
             MainPlot.Refresh();
+        }
+
+        private void OpenFile(bool isBinary)
+        {
+            if (ofd.ShowDialog() == true)
+            {
+                try
+                {
+                    try
+                    {
+                        if (MainWindow.SettingIO.IsConfigFileExist())
+                            MainWindow.SettingIO.LoadConfig();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("設定ファイルが読み込めません。\n" + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    thrustDatas.SetData(ofd.FileName, isBinary, MainWindow.SettingIO.Data.IgnitionDetectionThreshold * 0.01, MainWindow.SettingIO.Data.BurnoutDetectionThreshold * 0.01);
+                    PlotData();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("読み込みに失敗しました。\nErrorMessage: " + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
 
         private void OpenCsv(object sender, RoutedEventArgs e)
         {
-            if (ofd.ShowDialog() == true)
-            {
-                try
-                {
-                    try
-                    {
-                        if (MainWindow.SettingIO.IsConfigFileExist())
-                            MainWindow.SettingIO.LoadConfig();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("設定ファイルが読み込めません。\n" + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    thrustDatas.SetData(ofd.FileName, false, MainWindow.SettingIO.Data.IgnitionDetectionThreshold * 0.01, MainWindow.SettingIO.Data.BurnoutDetectionThreshold * 0.01);
-                    PlotData();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("読み込みに失敗しました。\nErrorMessage: " + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            OpenFile(false);
         }
         private void OpenBin(object sender, RoutedEventArgs e)
         {
-            if (ofd.ShowDialog() == true)
-            {
-                try
-                {
-                    try
-                    {
-                        if (MainWindow.SettingIO.IsConfigFileExist())
-                            MainWindow.SettingIO.LoadConfig();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("設定ファイルが読み込めません。\n" + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                    thrustDatas.SetData(ofd.FileName, true, MainWindow.SettingIO.Data.IgnitionDetectionThreshold * 0.01, MainWindow.SettingIO.Data.BurnoutDetectionThreshold * 0.01);
-                    PlotData();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("読み込みに失敗しました。\nErrorMessage: " + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-            }
+            OpenFile(true);
         }
 
         private void SaveImage(object sender, RoutedEventArgs e)
         {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.FileName = "Plot.png";
+            sfd.Filter = "PNGファイル(*.png)|*.png|JPGファイル(*.jpg)|*.jpg";
+            sfd.Title = "保存先のファイルを選択してください";
+
+            if (sfd.ShowDialog() == true)
+            {
+                MainPlot.Plot.SaveFig(sfd.FileName, 1280, 720, false, 4);
+            }
+            
         }
 
         private async void SaveDataAsCsv(object sender, RoutedEventArgs e)
