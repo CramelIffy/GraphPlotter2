@@ -122,17 +122,19 @@ namespace GraphPlotter2
             {
                 double maxThrust = thrustDatas.GetData(true).maxThrust;
                 double maxTime = thrustDatas.GetData(true).time[Array.IndexOf(thrustDatas.GetData(true).thrust, maxThrust)];
-                var maxLine = MainPlot.Plot.AddHorizontalLine(maxThrust, Color.Navy, 2, LineStyle.Dot);
+                var maxLine = MainPlot.Plot.AddHorizontalLine(maxThrust, Color.FromArgb(255, Color.Navy), 2, LineStyle.Dot);
                 maxLine.Max = maxTime;
                 maxLine.PositionLabel = true;
-                maxLine.PositionLabelBackground = maxLine.Color;
+                maxLine.PositionLabelBackground = Color.FromArgb(180, Color.Navy);
+                maxLine.PositionFormatter = x => $"max: \n{x:F2}";
             }
             // 平均推力描画
             if (MainWindow.SettingIO.Data.AverageThrust)
             {
-                var maxLine = MainPlot.Plot.AddHorizontalLine(thrustDatas.GetData(true).avgThrust, Color.FromArgb(255, 20, 20, 20), 1, LineStyle.Dash);
-                maxLine.PositionLabel = true;
-                maxLine.PositionLabelBackground = maxLine.Color;
+                var avgLine = MainPlot.Plot.AddHorizontalLine(thrustDatas.GetData(true).avgThrust, Color.FromArgb(255, 12, 12, 12), 1, LineStyle.Dash);
+                avgLine.PositionLabel = true;
+                avgLine.PositionLabelBackground = Color.FromArgb(180, 12, 12, 12);
+                avgLine.PositionFormatter = x => $"avg: \n{x:F2}";
             }
             MainPlot.Refresh();
         }
@@ -189,6 +191,7 @@ namespace GraphPlotter2
             if (sfd.ShowDialog() == true)
             {
                 MainPlot.Plot.SaveFig(sfd.FileName, 1280, 720, false, 4);
+                MessageBox.Show("保存しました。", "完了", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             
         }
