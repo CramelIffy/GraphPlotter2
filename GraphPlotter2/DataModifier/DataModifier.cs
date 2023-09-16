@@ -76,6 +76,7 @@ namespace DataModifier
 
             SavitzkyGolayFilter filter = new(sidePoints, polynomialOrder);
 
+            // うまく読み込めるまでループ
             while (++iterCount <= iterMax)
             {
                 // 時間、推力データを配列に変換
@@ -83,6 +84,8 @@ namespace DataModifier
                 tempData.thrust = decodedData.Item1.Select(item => item.Data).ToArray();
                 if (tempData.thrust.Length <= requireDetectionCount * 2 + iterMax)
                     throw NumOfElementIsTooSmall;
+                // 時間データの逆行補正
+                Array.Sort(tempData.time, tempData.thrust);
                 // オフセット除去
                 double thrustOffset = tempData.thrust.OrderBy(x => x).Skip((int)(tempData.thrust.Length * 0.01)).Take((int)(tempData.thrust.Length * 0.01) + 1).Average();
                 tempData.thrust = tempData.thrust.AsParallel().Select(x => x - thrustOffset).ToArray();
