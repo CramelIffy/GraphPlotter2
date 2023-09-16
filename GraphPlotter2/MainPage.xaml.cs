@@ -87,22 +87,23 @@ namespace GraphPlotter2
                 using (FileStream fileStream = new(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
                 using (StreamWriter writer = new(fileStream, Encoding.UTF8, 4096))
                 {
-                    await writer.WriteLineAsync("time(s),thrust(N),denoisedThrust(N),burningTime(s),maxThrust(N),averageThrust(N),totalImpluse(N·s)");
+                    await writer.WriteLineAsync("time(original)(s),time(elapsed)(s),thrust(N),denoisedThrust(N),burningTime(s),maxThrust(N),averageThrust(N),totalImpluse(N·s)");
 
                     bool noDataWrittenYet = true;
                     StringBuilder buffer = new();
                     for (int i = thrustDatas.GetData(true).ignitionIndex; i <= thrustDatas.GetData(true).burnoutIndex; i++)
                     {
                         buffer.Clear();
-                        buffer.Append(thrustDatas.GetData(true).time[i]);
-                        buffer.Append("," + thrustDatas.GetData(true).thrust[i]);
-                        buffer.Append("," + thrustDatas.GetData(true).denoisedThrust[i]);
+                        buffer.Append(thrustDatas.GetData(true).time[i].ToString("F7"));
+                        buffer.Append("," + (thrustDatas.GetData(true).time[i] - thrustDatas.GetData(true).time[thrustDatas.GetData(true).ignitionIndex]).ToString("F7"));
+                        buffer.Append("," + thrustDatas.GetData(true).thrust[i].ToString("F7"));
+                        buffer.Append("," + thrustDatas.GetData(true).denoisedThrust[i].ToString("F7"));
                         if(noDataWrittenYet)
                         {
-                            buffer.Append("," + thrustDatas.GetData(true).burnTime);
-                            buffer.Append("," + thrustDatas.GetData(true).maxThrust);
-                            buffer.Append("," + thrustDatas.GetData(true).avgThrust);
-                            buffer.Append("," + thrustDatas.GetData(true).impluse);
+                            buffer.Append("," + thrustDatas.GetData(true).burnTime.ToString("F7"));
+                            buffer.Append("," + thrustDatas.GetData(true).maxThrust.ToString("F7"));
+                            buffer.Append("," + thrustDatas.GetData(true).avgThrust.ToString("F7"));
+                            buffer.Append("," + thrustDatas.GetData(true).impluse.ToString("F7"));
                             noDataWrittenYet = false;
                         }
 
