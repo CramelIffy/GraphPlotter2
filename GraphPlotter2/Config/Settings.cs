@@ -62,9 +62,9 @@ namespace Config
             TotalImpulse = true;
             MainGraphName = "MainGraph";
             SubGraphName = "SubGraph";
-            _subgraphopacity = 75;
-            _undenoisedgraphgpacity = 20;
-            _burningtimeopacity = 15;
+            _subgraphopacity = 85;
+            _undenoisedgraphgpacity = 35;
+            _burningtimeopacity = 20;
             _ignitiondetectionthreshold = 5;
             _burnoutdetectionthreshold = 5;
             PrefixOfTime = 0.001;

@@ -61,6 +61,28 @@ namespace DataModifier
                 subData = null;
         }
 
+        private static void InsertionSort(double[] time, double[] thrust)
+        {
+            int length = time.Length;
+
+            for (int i = 1; i < length; i++)
+            {
+                double currentTime = time[i];
+                double currentThrust = thrust[i];
+                int j = i - 1;
+
+                while (j >= 0 && time[j] > currentTime)
+                {
+                    time[j + 1] = time[j];
+                    thrust[j + 1] = thrust[j];
+                    j--;
+                }
+
+                time[j + 1] = currentTime;
+                thrust[j + 1] = currentThrust;
+            }
+        }
+
         public void SetData(string filePath, bool isBinary, double ignitionDetectionThreshold = 0.05, double burnoutDetectionThreshold = 0.05, int sidePoints = 21, int polynomialOrder = 4)
         {
             const int requireDetectionCount = 20;
@@ -86,7 +108,7 @@ namespace DataModifier
                 if (tempData.thrust.Length <= requireDetectionCount * 2 + iterMax)
                     throw NumOfElementIsTooSmall;
                 // 時間データの逆行補正
-                Array.Sort(tempData.time, tempData.thrust);
+                InsertionSort(tempData.time, tempData.thrust);
                 // オフセット除去
                 double thrustOffset = tempData.thrust.OrderBy(x => x).Skip((int)(tempData.thrust.Length * 0.01)).Take((int)(tempData.thrust.Length * 0.01) + 1).Average();
                 tempData.thrust = tempData.thrust.AsParallel().Select(x => x - thrustOffset).ToArray();
