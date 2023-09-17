@@ -50,9 +50,9 @@
                                     <StackPanel Orientation="Vertical">
                                         <Label Content="MainGraphName: " HorizontalAlignment="Right"/>
                                         <Label Content="SubGraphName: " HorizontalAlignment="Right"/>
-                                        <Label Content="SubGraphOpacity(%): " HorizontalAlignment="Right"/>
-                                        <Label Content="UndenoisedGraphOpacity(%): " HorizontalAlignment="Right"/>
-                                        <Label Content="BurningTimeOpacity(%): " HorizontalAlignment="Right"/>
+                                        <Label Content="SubGraphOpacity[%]: " HorizontalAlignment="Right"/>
+                                        <Label Content="UndenoisedGraphOpacity[%]: " HorizontalAlignment="Right"/>
+                                        <Label Content="BurningTimeOpacity[%]: " HorizontalAlignment="Right"/>
                                     </StackPanel>
                                 </GroupBox>
                                 <GroupBox Header="InputValues" Margin="5,5" BorderBrush="Black">
@@ -85,8 +85,8 @@
                             <StackPanel Orientation="Horizontal" Grid.Row="1">
                                 <GroupBox Header="DataAnalysis" Margin="5,5,5,5" BorderBrush="Black">
                                     <StackPanel Orientation="Vertical">
-                                        <Label Content="IgnitionDetectionThreshold(%): " HorizontalAlignment="Right"/>
-                                        <Label Content="BurnoutDetectionThreshold(%): " HorizontalAlignment="Right"/>
+                                        <Label Content="IgnitionDetectionThreshold[%]: " HorizontalAlignment="Right"/>
+                                        <Label Content="BurnoutDetectionThreshold[%]: " HorizontalAlignment="Right"/>
                                         <Label Content="Prefix of Time(CSV): " HorizontalAlignment="Right"/>
                                         <Label Content="Prefix of Time(BIN): " HorizontalAlignment="Right"/>
                                     </StackPanel>

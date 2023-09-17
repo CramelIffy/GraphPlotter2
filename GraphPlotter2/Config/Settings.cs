@@ -77,8 +77,8 @@ namespace Config
             _burningtimeopacity = 20;
             _ignitiondetectionthreshold = 5;
             _burnoutdetectionthreshold = 5;
-            PrefixOfTimeCSV = 0.001;
-            PrefixOfTimeBIN = 0.000001;
+            PrefixOfTimeCSV = 1E-03;
+            PrefixOfTimeBIN = 1E-06;
             SlopeCSV = 0.36394252776313896;
             InterceptCSV = -84.211384769940082;
             SlopeBIN = 1.0;
