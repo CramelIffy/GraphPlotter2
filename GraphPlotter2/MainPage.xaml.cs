@@ -52,6 +52,12 @@ namespace GraphPlotter2
             MainPlot.Refresh();
         }
 
+        private void AutoScaleForThrustCurve()
+        {
+            MainPlot.Plot.SetAxisLimitsX(thrustDatas.GetData(true).time[thrustDatas.GetData(true).ignitionIndex] - plotMarginX, thrustDatas.GetData(true).time[thrustDatas.GetData(true).burnoutIndex] + plotMarginX);
+            MainPlot.Plot.SetAxisLimitsY(-plotMarginY, thrustDatas.GetData(true).maxThrust + plotMarginY);
+        }
+
         private void PlotData()
         {
             int subGraphOpacity = MainWindow.SettingIO.Data.SubGraphOpacity * 255 / 100;
@@ -91,8 +97,6 @@ namespace GraphPlotter2
                 var mainGraph = MainPlot.Plot.AddSignalXY(thrustDatas.GetData(true).time, thrustDatas.GetData(true).denoisedThrust, Color.Black);
                 mainGraph.LineWidth = 2;
                 mainGraph.MarkerSize = 0;
-                MainPlot.Plot.SetAxisLimitsX(thrustDatas.GetData(true).time[thrustDatas.GetData(true).ignitionIndex] - plotMarginX, thrustDatas.GetData(true).time[thrustDatas.GetData(true).burnoutIndex] + plotMarginX);
-                MainPlot.Plot.SetAxisLimitsY(-plotMarginY, thrustDatas.GetData(true).maxThrust + plotMarginY);
             }
             // 全力積描画
             if (MainWindow.SettingIO.Data.TotalImpulse)
@@ -136,6 +140,8 @@ namespace GraphPlotter2
                 avgLine.PositionLabelBackground = Color.FromArgb(180, 12, 12, 12);
                 avgLine.PositionFormatter = x => $"avg: \n{x:F2}";
             }
+            // 拡大縮小
+            AutoScaleForThrustCurve();
             MainPlot.Refresh();
         }
 
@@ -157,7 +163,7 @@ namespace GraphPlotter2
                     double timePrefix;
                     double calibSlope;
                     double calibIntercept;
-                    if(isBinary)
+                    if (isBinary)
                     {
                         timePrefix = MainWindow.SettingIO.Data.PrefixOfTimeBIN;
                         calibSlope = MainWindow.SettingIO.Data.SlopeBIN;
@@ -208,7 +214,7 @@ namespace GraphPlotter2
                 MainPlot.Plot.SaveFig(sfd.FileName, 1280, 720, false, 4);
                 MessageBox.Show("保存しました。", "完了", MessageBoxButton.OK, MessageBoxImage.Information);
             }
-            
+
         }
 
         private async void SaveDataAsCsv(object sender, RoutedEventArgs e)
@@ -260,6 +266,19 @@ namespace GraphPlotter2
         {
             var settingPage = new SettingPage();
             NavigationService.Navigate(settingPage);
+        }
+
+        private void InitScale(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                thrustDatas.GetData(true);
+                AutoScaleForThrustCurve();
+                MainPlot.Refresh();
+            }catch (Exception)
+            {
+
+            }
         }
         private void OpenAbout(object sender, RoutedEventArgs e)
         {

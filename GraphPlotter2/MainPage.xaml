@@ -24,6 +24,7 @@
                 <MenuItem Header="Exit" Click="Exit"/>
             </MenuItem>
             <MenuItem Header="Settings" Click="OpenSetting"/>
+            <MenuItem Header="InitScale" Click="InitScale"/>
             <MenuItem Header="About" Click="OpenAbout"/>
         </Menu>
         <Frame Name="screen" NavigationUIVisibility="Hidden"/>
