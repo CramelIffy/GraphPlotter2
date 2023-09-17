@@ -83,13 +83,13 @@ namespace DataModifier
             }
         }
 
-        public void SetData(string filePath, bool isBinary, double ignitionDetectionThreshold = 0.05, double burnoutDetectionThreshold = 0.05, int sidePoints = 21, int polynomialOrder = 4)
+        public void SetData(string filePath, bool isBinary, double ignitionDetectionThreshold, double burnoutDetectionThreshold, double timePrefix, double calibSlope, double calibIntercept, int sidePoints = 21, int polynomialOrder = 4)
         {
             const int requireDetectionCount = 20;
             const int iterMax = 20;
 
             // データ読み込み
-            (List<(double Time, double Data)>, Exception?) decodedData = isBinary ? DecodeBinary(filePath) : DecodeCSV(filePath);
+            (List<(double Time, double Data)>, Exception?) decodedData = isBinary ? DecodeBinary(filePath, timePrefix, calibSlope, calibIntercept) : DecodeCSV(filePath, timePrefix, calibSlope, calibIntercept);
             if (decodedData.Item2 != null)
                 throw decodedData.Item2;
 

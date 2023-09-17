@@ -52,7 +52,12 @@ namespace GraphPlotter2
                 BurningTimeOpacity.Text = MainWindow.SettingIO.Data.BurningTimeOpacity.ToString();
                 IgnitionDetectionThreshold.Text = MainWindow.SettingIO.Data.IgnitionDetectionThreshold.ToString();
                 BurnoutDetectionThreshold.Text = MainWindow.SettingIO.Data.BurnoutDetectionThreshold.ToString();
-                PrefixOfTime.Text = MainWindow.SettingIO.Data.PrefixOfTime.ToString();
+                PrefixOfTimeCSV.Text = MainWindow.SettingIO.Data.PrefixOfTimeCSV.ToString();
+                PrefixOfTimeBIN.Text = MainWindow.SettingIO.Data.PrefixOfTimeBIN.ToString();
+                SlopeCSV.Text = MainWindow.SettingIO.Data.SlopeCSV.ToString();
+                InterceptCSV.Text = MainWindow.SettingIO.Data.InterceptCSV.ToString();
+                SlopeBIN.Text = MainWindow.SettingIO.Data.SlopeBIN.ToString();
+                InterceptBIN.Text = MainWindow.SettingIO.Data.InterceptBIN.ToString();
             }
             catch (Exception ex)
             {
@@ -64,12 +69,12 @@ namespace GraphPlotter2
         private void textBoxPrice_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             // 0-9のみ
-            e.Handled = !new Regex("[0-9]").IsMatch(e.Text);
+            e.Handled = !new Regex("[0-9-]").IsMatch(e.Text);
         }
         private void textBoxPrice_PreviewTextInput_withDecimal(object sender, TextCompositionEventArgs e)
         {
             // 0-9と.のみ
-            e.Handled = !new Regex("[0-9.]").IsMatch(e.Text);
+            e.Handled = !new Regex("[0-9.-]").IsMatch(e.Text);
         }
         private void textBoxPrice_PreviewExecuted(object sender, ExecutedRoutedEventArgs e)
         {
@@ -97,7 +102,12 @@ namespace GraphPlotter2
                 MainWindow.SettingIO.Data.BurningTimeOpacity = Convert.ToInt32(BurningTimeOpacity.Text);
                 MainWindow.SettingIO.Data.IgnitionDetectionThreshold = Convert.ToInt32(IgnitionDetectionThreshold.Text);
                 MainWindow.SettingIO.Data.BurnoutDetectionThreshold = Convert.ToInt32(BurnoutDetectionThreshold.Text);
-                MainWindow.SettingIO.Data.PrefixOfTime = Convert.ToDouble(PrefixOfTime.Text);
+                MainWindow.SettingIO.Data.PrefixOfTimeCSV = Convert.ToDouble(PrefixOfTimeCSV.Text);
+                MainWindow.SettingIO.Data.PrefixOfTimeBIN = Convert.ToDouble(PrefixOfTimeBIN.Text);
+                MainWindow.SettingIO.Data.SlopeCSV = Convert.ToDouble(SlopeCSV.Text);
+                MainWindow.SettingIO.Data.InterceptCSV = Convert.ToDouble(InterceptCSV.Text);
+                MainWindow.SettingIO.Data.SlopeBIN = Convert.ToDouble(SlopeBIN.Text);
+                MainWindow.SettingIO.Data.InterceptBIN = Convert.ToDouble(InterceptBIN.Text);
                 MainWindow.SettingIO.WriteConfig();
             }
             catch (Exception ex)

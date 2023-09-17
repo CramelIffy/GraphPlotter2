@@ -13,7 +13,7 @@
         <Menu DockPanel.Dock="Top" FontSize="14">
             <MenuItem Header="Files">
                 <MenuItem Header="Open...">
-                    <MenuItem Header="Binary" Click="OpenBin"/>
+                    <MenuItem Header="Bin" Click="OpenBin"/>
                     <MenuItem Header="CSV" Click="OpenCsv"/>
                 </MenuItem>
                 <MenuItem Header="InitScreen" Click="InitScreen"/>

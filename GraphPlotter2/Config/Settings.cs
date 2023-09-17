@@ -50,7 +50,17 @@ namespace Config
         private int _burnoutdetectionthreshold;
         public int BurnoutDetectionThreshold { get => _burnoutdetectionthreshold; set => _burnoutdetectionthreshold = Trim(value, 0, 100); }
 
-        public double PrefixOfTime { get; set; }
+        public double PrefixOfTimeCSV { get; set; }
+
+        public double PrefixOfTimeBIN { get; set; }
+
+        public double SlopeCSV { get; set; }
+
+        public double InterceptCSV { get; set; }
+
+        public double SlopeBIN { get; set; }
+
+        public double InterceptBIN { get; set; }
 
         public SettingDatas()
         {
@@ -67,7 +77,12 @@ namespace Config
             _burningtimeopacity = 20;
             _ignitiondetectionthreshold = 5;
             _burnoutdetectionthreshold = 5;
-            PrefixOfTime = 0.001;
+            PrefixOfTimeCSV = 0.001;
+            PrefixOfTimeBIN = 0.000001;
+            SlopeCSV = 0.36394252776313896;
+            InterceptCSV = -84.211384769940082;
+            SlopeBIN = 1.0;
+            InterceptBIN = 0.0;
         }
     }
 

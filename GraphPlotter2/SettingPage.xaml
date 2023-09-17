@@ -40,32 +40,67 @@
                         </StackPanel>
                     </GroupBox>
                     <GroupBox Grid.Column="1" Header="Other" Margin="10,10,10,10" BorderBrush="Black">
-                        <StackPanel Orientation="Horizontal">
-                            <GroupBox Grid.Column="1" Header="SettingName" Margin="5,5" BorderBrush="Black">
-                                <StackPanel Orientation="Vertical">
-                                    <Label Content="MainGraphName: " HorizontalAlignment="Right"/>
-                                    <Label Content="SubGraphName: " HorizontalAlignment="Right"/>
-                                    <Label Content="SubGraphOpacity(%): " HorizontalAlignment="Right"/>
-                                    <Label Content="UndenoisedGraphOpacity(%): " HorizontalAlignment="Right"/>
-                                    <Label Content="BurningTimeOpacity(%): " HorizontalAlignment="Right"/>
-                                    <Label Content="IgnitionDetectionThreshold(%): " HorizontalAlignment="Right"/>
-                                    <Label Content="BurnoutDetectionThreshold(%): " HorizontalAlignment="Right"/>
-                                    <Label Content="Prefix of Time(e.g. ms → 0.001): " HorizontalAlignment="Right"/>
-                                </StackPanel>
-                            </GroupBox>
-                            <GroupBox Grid.Column="1" Header="InputValues" Margin="5,5" BorderBrush="Black">
-                                <StackPanel Orientation="Vertical">
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="MainGraphName" Text="MainGraph"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="SubGraphName" Text="SubGraph"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="SubGraphOpacity" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="40"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="UndenoisedGraphOpacity" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="40"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="BurningTimeOpacity" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="40"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="IgnitionDetectionThreshold" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="5"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="BurnoutDetectionThreshold" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="5"/>
-                                    <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="PrefixOfTime" PreviewTextInput="textBoxPrice_PreviewTextInput_withDecimal" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="0.001"/>
-                                </StackPanel>
-                            </GroupBox>
-                        </StackPanel>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="0">
+                                <GroupBox Header="Graph" Margin="5,5" BorderBrush="Black">
+                                    <StackPanel Orientation="Vertical">
+                                        <Label Content="MainGraphName: " HorizontalAlignment="Right"/>
+                                        <Label Content="SubGraphName: " HorizontalAlignment="Right"/>
+                                        <Label Content="SubGraphOpacity(%): " HorizontalAlignment="Right"/>
+                                        <Label Content="UndenoisedGraphOpacity(%): " HorizontalAlignment="Right"/>
+                                        <Label Content="BurningTimeOpacity(%): " HorizontalAlignment="Right"/>
+                                    </StackPanel>
+                                </GroupBox>
+                                <GroupBox Header="InputValues" Margin="5,5" BorderBrush="Black">
+                                    <StackPanel Orientation="Vertical">
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="MainGraphName" Text="MainGraph"/>
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="SubGraphName" Text="SubGraph"/>
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="SubGraphOpacity" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="40"/>
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="UndenoisedGraphOpacity" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="40"/>
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="BurningTimeOpacity" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="40"/>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <GroupBox Header="CalibrationCurve" Margin="15,5,5,5" BorderBrush="Black">
+                                    <StackPanel Orientation="Vertical">
+                                        <Label Content="Slope(CSV): " HorizontalAlignment="Right"/>
+                                        <Label Content="Intercept(CSV): " HorizontalAlignment="Right"/>
+                                        <Label Content="Slope(BIN): " HorizontalAlignment="Right"/>
+                                        <Label Content="Intercept(BIN): " HorizontalAlignment="Right"/>
+                                    </StackPanel>
+                                </GroupBox>
+                                <GroupBox Header="InputValues" Margin="5,5" BorderBrush="Black">
+                                    <StackPanel Orientation="Vertical">
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="SlopeCSV" PreviewTextInput="textBoxPrice_PreviewTextInput_withDecimal" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="0.001"/>
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="InterceptCSV" PreviewTextInput="textBoxPrice_PreviewTextInput_withDecimal" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="0.001"/>
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="SlopeBIN" PreviewTextInput="textBoxPrice_PreviewTextInput_withDecimal" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="0.001"/>
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="InterceptBIN" PreviewTextInput="textBoxPrice_PreviewTextInput_withDecimal" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="0.001"/>
+                                    </StackPanel>
+                                </GroupBox>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Grid.Row="1">
+                                <GroupBox Header="DataAnalysis" Margin="5,5,5,5" BorderBrush="Black">
+                                    <StackPanel Orientation="Vertical">
+                                        <Label Content="IgnitionDetectionThreshold(%): " HorizontalAlignment="Right"/>
+                                        <Label Content="BurnoutDetectionThreshold(%): " HorizontalAlignment="Right"/>
+                                        <Label Content="Prefix of Time(CSV): " HorizontalAlignment="Right"/>
+                                        <Label Content="Prefix of Time(BIN): " HorizontalAlignment="Right"/>
+                                    </StackPanel>
+                                </GroupBox>
+                                <GroupBox Header="InputValues" Margin="5,5" BorderBrush="Black">
+                                    <StackPanel Orientation="Vertical">
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="IgnitionDetectionThreshold" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="5"/>
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="BurnoutDetectionThreshold" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="5"/>
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="PrefixOfTimeCSV" PreviewTextInput="textBoxPrice_PreviewTextInput_withDecimal" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="0.001"/>
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="PrefixOfTimeBIN" PreviewTextInput="textBoxPrice_PreviewTextInput_withDecimal" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="0.001"/>
+                                    </StackPanel>
+                                </GroupBox>
+                            </StackPanel>
+                        </Grid>
                     </GroupBox>
                 </Grid>
             </GroupBox>

@@ -154,7 +154,22 @@ namespace GraphPlotter2
                     {
                         MessageBox.Show("設定ファイルが読み込めません。\n" + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
-                    thrustDatas.SetData(ofd.FileName, isBinary, MainWindow.SettingIO.Data.IgnitionDetectionThreshold * 0.01, MainWindow.SettingIO.Data.BurnoutDetectionThreshold * 0.01);
+                    double timePrefix;
+                    double calibSlope;
+                    double calibIntercept;
+                    if(isBinary)
+                    {
+                        timePrefix = MainWindow.SettingIO.Data.PrefixOfTimeBIN;
+                        calibSlope = MainWindow.SettingIO.Data.SlopeBIN;
+                        calibIntercept = MainWindow.SettingIO.Data.InterceptBIN;
+                    }
+                    else
+                    {
+                        timePrefix = MainWindow.SettingIO.Data.PrefixOfTimeCSV;
+                        calibSlope = MainWindow.SettingIO.Data.SlopeCSV;
+                        calibIntercept = MainWindow.SettingIO.Data.InterceptCSV;
+                    }
+                    thrustDatas.SetData(ofd.FileName, isBinary, MainWindow.SettingIO.Data.IgnitionDetectionThreshold * 0.01, MainWindow.SettingIO.Data.BurnoutDetectionThreshold * 0.01, timePrefix, calibSlope, calibIntercept);
                     PlotData();
                 }
                 catch (Exception ex)
