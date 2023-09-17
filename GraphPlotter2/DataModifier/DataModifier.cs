@@ -95,11 +95,10 @@ namespace DataModifier
                 // 最大値計算
                 tempData.maxThrust = tempData.thrust.Max();
 
+                // 燃焼時間推定
                 // インデックスの初期化
                 tempData.ignitionIndex = 0;
                 tempData.burnoutIndex = tempData.thrust.Length - 1;
-
-                // 燃焼時間推定
                 int maxThrustIndex = Array.IndexOf(tempData.thrust, tempData.maxThrust);
 
                 int[] detectCount = { 0, 0 };
@@ -161,9 +160,13 @@ namespace DataModifier
             tempData.avgThrust = tempData.thrust.Skip(tempData.ignitionIndex).Take(tempData.burnoutIndex - tempData.ignitionIndex).Average();
 
             // 力積の計算
-            for (int i = tempData.ignitionIndex; i < tempData.burnoutIndex; i++)
-                tempData.impluse += (tempData.thrust[i + 1] + tempData.thrust[i]) * (tempData.time[i + 1] - tempData.time[i]);
-            tempData.impluse /= 2;
+            var impulseTemp = new double[tempData.burnoutIndex - tempData.ignitionIndex + 1];
+            Parallel.For(tempData.ignitionIndex, tempData.burnoutIndex, i =>
+            {
+                impulseTemp[i - tempData.ignitionIndex] = (tempData.thrust[i + 1] + tempData.thrust[i]) * (tempData.time[i + 1] - tempData.time[i]);
+            });
+            Array.Sort(impulseTemp); // 極端に大きな値と小さな値が混在するとき、有効数字の関係で小さい値が消えてしまうことがあるためソート(おそらく不必要だとは思われるが一応)
+            tempData.impluse = impulseTemp.Sum() / 2;
 
             if (mainData == null)
                 mainData = tempData;
