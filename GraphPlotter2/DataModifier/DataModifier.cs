@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using MathNet.Numerics.LinearAlgebra;
 
 namespace DataModifier
@@ -49,7 +50,7 @@ namespace DataModifier
             mainData = null;
             subData = null;
 
-            NumOfElementIsTooSmall = new Exception("The number of elements is too small");
+            NumOfElementIsTooSmall = new Exception("The number of data read is too small");
             BurningTimeEstimationFailed = new Exception("Burn time estimation failed");
         }
 
@@ -89,9 +90,11 @@ namespace DataModifier
             const int iterMax = 20;
 
             // データ読み込み
-            (List<(double Time, double Data)>, Exception?) decodedData = isBinary ? DecodeBinary(filePath, timePrefix, calibSlope, calibIntercept) : DecodeCSV(filePath, timePrefix, calibSlope, calibIntercept);
+            (List<(double Time, double Data)>, Exception?, bool isSomeDataCannotRead) decodedData = isBinary ? DecodeBinary(filePath, timePrefix, calibSlope, calibIntercept) : DecodeCSV(filePath, timePrefix, calibSlope, calibIntercept);
             if (decodedData.Item2 != null)
                 throw decodedData.Item2;
+            if (decodedData.isSomeDataCannotRead)
+                MessageBox.Show("一部読み込めないデータが存在しています。", "注意", MessageBoxButton.OK, MessageBoxImage.Warning);
 
             DataSet tempData = new();
 

@@ -17,10 +17,11 @@ namespace DataModifier
         /// <param name="linearEqCoefA">The value of A among the coefficients of the linear equation (Ax+B) that converts from voltage values to thrust. Default is 0.36394252776313896</param>
         /// <param name="linearEqCoefB">The value of B among the coefficients of the linear equation (Ax+B) that converts from voltage values to thrust. Default is -84.211384769940082</param>
         /// <returns></returns>
-        private static (List<(double Time, double Data)>, Exception?) DecodeCSV(string filePath, double timePrefix, double linearEqCoefA, double linearEqCoefB)
+        private static (List<(double Time, double Data)>, Exception?, bool isSomeDataCannotRead) DecodeCSV(string filePath, double timePrefix, double linearEqCoefA, double linearEqCoefB)
         {
             List<(double, double)> data = new();
             Exception? exception = null;
+            bool isSomeDataCannotRead = false;
 
             try
             {
@@ -33,7 +34,11 @@ namespace DataModifier
                         {
                             return (time * timePrefix, dataValue * linearEqCoefA + linearEqCoefB);
                         }
-                        return (double.MinValue, double.MinValue);// 変換失敗時にはdouble型の最小値を返す
+                        else
+                        {
+                            isSomeDataCannotRead = true;
+                            return (double.MinValue, double.MinValue);// 変換失敗時にはdouble型の最小値を返す
+                        }
                     })
                     .Where(tuple => tuple.Item1 != double.MinValue)
                     .ToList();
@@ -41,9 +46,10 @@ namespace DataModifier
             catch (Exception ex)
             {
                 exception = ex;
+                isSomeDataCannotRead = true;
             }
 
-            return (data, exception);
+            return (data, exception, isSomeDataCannotRead);
         }
 
         /// <summary>
@@ -51,10 +57,11 @@ namespace DataModifier
         /// </summary>
         /// <param name="filePath"></param>
         /// <returns></returns>
-        private static (List<(double Time, double Data)>, Exception?) DecodeBinary(string filePath, double timePrefix, double linearEqCoefA, double linearEqCoefB)
+        private static (List<(double Time, double Data)>, Exception?, bool isSomeDataCannotRead) DecodeBinary(string filePath, double timePrefix, double linearEqCoefA, double linearEqCoefB)
         {
             List<(double Time, double Data)> dataList = new();
             Exception? exception = null;
+            bool isSomeDataCannotRead = false;
 
             try
             {
@@ -83,9 +90,10 @@ namespace DataModifier
             catch (Exception ex)
             {
                 exception = ex;
+                isSomeDataCannotRead = true;
             }
 
-            return (dataList, exception);
+            return (dataList, exception, isSomeDataCannotRead);
         }
     }
 
