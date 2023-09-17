@@ -24,9 +24,7 @@ namespace DataModifier
 
             try
             {
-                string[] lines = File.ReadAllLines(filePath);
-
-                data = lines
+                data = File.ReadAllLines(filePath)
                     .AsParallel()
                     .Select(line =>
                     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using MathNet.Numerics.LinearAlgebra;
@@ -91,13 +92,12 @@ namespace DataModifier
                 tempData.thrust = tempData.thrust.AsParallel().Select(x => x - thrustOffset).ToArray();
                 // ノイズ除去計算
                 tempData.denoisedThrust = filter.Process(tempData.thrust);
+                // 最大値計算
+                tempData.maxThrust = tempData.thrust.Max();
 
                 // インデックスの初期化
                 tempData.ignitionIndex = 0;
                 tempData.burnoutIndex = tempData.thrust.Length - 1;
-
-                // 最大値計算
-                tempData.maxThrust = tempData.thrust.Max();
 
                 // 燃焼時間推定
                 int maxThrustIndex = Array.IndexOf(tempData.thrust, tempData.maxThrust);
@@ -138,6 +138,7 @@ namespace DataModifier
                 if (detectCount[1] != requireDetectionCount)
                     tempData.burnoutIndex -= detectCount[1];
 
+                // 燃焼時間推定が成功したかどうかの判定
                 if (tempData.ignitionIndex == tempData.burnoutIndex)
                     decodedData.Item1.RemoveAt(maxThrustIndex);
                 else
