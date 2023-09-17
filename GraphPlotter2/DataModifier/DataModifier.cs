@@ -101,43 +101,45 @@ namespace DataModifier
 
                 // 燃焼時間推定
                 int maxThrustIndex = Array.IndexOf(tempData.thrust, tempData.maxThrust);
+
+                int[] detectCount = { 0, 0 };
                 Parallel.Invoke(() =>
                 {
-                    int detectCount = 0;
                     for (int i = maxThrustIndex; i >= 0; i--)
                         if (tempData.denoisedThrust[i] < tempData.maxThrust * ignitionDetectionThreshold)
                         {
-                            detectCount++;
-                            if (detectCount >= requireDetectionCount)
+                            detectCount[0]++;
+                            if (detectCount[0] == requireDetectionCount)
                             {
                                 tempData.ignitionIndex = i + (requireDetectionCount - 1);
                                 break;
                             }
-
                         }
                         else
-                            detectCount = 0;
+                            detectCount[0] = 0;
                 }, () =>
                 {
-                    int detectCount = 0;
                     for (int i = maxThrustIndex; i < tempData.thrust.Length; i++)
                         if (tempData.denoisedThrust[i] < tempData.maxThrust * burnoutDetectionThreshold)
                         {
-                            detectCount++;
-                            if (detectCount >= requireDetectionCount)
+                            detectCount[1]++;
+                            if (detectCount[1] == requireDetectionCount)
                             {
                                 tempData.burnoutIndex = i - (requireDetectionCount - 1);
                                 break;
                             }
-
                         }
                         else
-                            detectCount = 0;
+                            detectCount[1] = 0;
                 });
+                // 燃焼していないデータ数が少ないときの処理
+                if (detectCount[0] != requireDetectionCount)
+                    tempData.ignitionIndex += detectCount[0];
+                if (detectCount[1] != requireDetectionCount)
+                    tempData.burnoutIndex -= detectCount[1];
+
                 if (tempData.ignitionIndex == tempData.burnoutIndex)
                     decodedData.Item1.RemoveAt(maxThrustIndex);
-                else if (tempData.ignitionIndex == 0 && tempData.burnoutIndex == tempData.thrust.Length - 1)
-                    throw NumOfElementIsTooSmall;
                 else
                     break;
 
