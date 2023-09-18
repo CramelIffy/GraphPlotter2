@@ -52,8 +52,8 @@ namespace GraphPlotter2
                 BurningTimeOpacity.Text = MainWindow.SettingIO.Data.BurningTimeOpacity.ToString();
                 IgnitionDetectionThreshold.Text = MainWindow.SettingIO.Data.IgnitionDetectionThreshold.ToString();
                 BurnoutDetectionThreshold.Text = MainWindow.SettingIO.Data.BurnoutDetectionThreshold.ToString();
-                PrefixOfTimeCSV.Text = MainWindow.SettingIO.Data.PrefixOfTimeCSV.ToString();
-                PrefixOfTimeBIN.Text = MainWindow.SettingIO.Data.PrefixOfTimeBIN.ToString();
+                PrefixOfTimeCSV.Text = MainWindow.SettingIO.Data.PrefixOfTimeCSV.ToString("F6");
+                PrefixOfTimeBIN.Text = MainWindow.SettingIO.Data.PrefixOfTimeBIN.ToString("F6");
                 SlopeCSV.Text = MainWindow.SettingIO.Data.SlopeCSV.ToString();
                 InterceptCSV.Text = MainWindow.SettingIO.Data.InterceptCSV.ToString();
                 SlopeBIN.Text = MainWindow.SettingIO.Data.SlopeBIN.ToString();
