@@ -73,7 +73,7 @@ namespace DataModifier
                     {
                         for (int i = 0; i < chunk.Length; i += 8)
                         {
-                            double time = BitConverter.ToInt32(chunk, i) * timePrefix;
+                            double time = BitConverter.ToInt32(chunk, i);
                             double data = BitConverter.ToInt32(chunk, i + 4) * linearEqCoefA + linearEqCoefB;
                             localData.Add((time, data));
                         }
@@ -92,6 +92,10 @@ namespace DataModifier
                 exception = ex;
                 isSomeDataCannotRead = true;
             }
+
+            for (int i = 1; i < dataList.Count; i++)
+                dataList[i] = (Math.Round(dataList[i - 1].Time + dataList[i].Time), dataList[i].Data);
+            dataList = dataList.AsParallel().Select(x => (x.Time * timePrefix, x.Data)).ToList();
 
             return (dataList, exception, isSomeDataCannotRead);
         }
