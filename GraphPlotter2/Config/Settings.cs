@@ -110,6 +110,11 @@ namespace Config
             return File.Exists(settingDirectoryPath + settingFileName);
         }
 
+        public void InitConfig()
+        {
+            this.Data = new();
+        }
+
         public SettingIO()
         {
             this.Data = new();

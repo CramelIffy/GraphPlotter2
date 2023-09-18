@@ -32,32 +32,60 @@ namespace GraphPlotter2
             NavigationService.Navigate(mainPage);
         }
 
+        private void SetConfigToUi()
+        {
+            MainGraph.IsChecked = MainWindow.SettingIO.Data.MainGraph;
+            SubGraph.IsChecked = MainWindow.SettingIO.Data.SubGraph;
+            BurningTime.IsChecked = MainWindow.SettingIO.Data.BurningTime;
+            MaxThrust.IsChecked = MainWindow.SettingIO.Data.MaxThrust;
+            AverageThrust.IsChecked = MainWindow.SettingIO.Data.AverageThrust;
+            TotalImpulse.IsChecked = MainWindow.SettingIO.Data.TotalImpulse;
+            MainGraphName.Text = MainWindow.SettingIO.Data.MainGraphName;
+            SubGraphName.Text = MainWindow.SettingIO.Data.SubGraphName;
+            SubGraphOpacity.Text = MainWindow.SettingIO.Data.SubGraphOpacity.ToString();
+            UndenoisedGraphOpacity.Text = MainWindow.SettingIO.Data.UndenoisedGraphOpacity.ToString();
+            BurningTimeOpacity.Text = MainWindow.SettingIO.Data.BurningTimeOpacity.ToString();
+            IgnitionDetectionThreshold.Text = MainWindow.SettingIO.Data.IgnitionDetectionThreshold.ToString();
+            BurnoutDetectionThreshold.Text = MainWindow.SettingIO.Data.BurnoutDetectionThreshold.ToString();
+            PrefixOfTimeCSV.Text = MainWindow.SettingIO.Data.PrefixOfTimeCSV.ToString("F6");
+            PrefixOfTimeBIN.Text = MainWindow.SettingIO.Data.PrefixOfTimeBIN.ToString("F6");
+            SlopeCSV.Text = MainWindow.SettingIO.Data.SlopeCSV.ToString();
+            InterceptCSV.Text = MainWindow.SettingIO.Data.InterceptCSV.ToString();
+            SlopeBIN.Text = MainWindow.SettingIO.Data.SlopeBIN.ToString();
+            InterceptBIN.Text = MainWindow.SettingIO.Data.InterceptBIN.ToString();
+        }
+
+        private void GetConfigFromUi()
+        {
+            MainWindow.SettingIO.Data.MainGraph = MainGraph.IsChecked ?? true;
+            MainWindow.SettingIO.Data.SubGraph = SubGraph.IsChecked ?? true;
+            MainWindow.SettingIO.Data.BurningTime = BurningTime.IsChecked ?? true;
+            MainWindow.SettingIO.Data.MaxThrust = MaxThrust.IsChecked ?? true;
+            MainWindow.SettingIO.Data.AverageThrust = AverageThrust.IsChecked ?? true;
+            MainWindow.SettingIO.Data.TotalImpulse = TotalImpulse.IsChecked ?? true;
+            MainWindow.SettingIO.Data.MainGraphName = MainGraphName.Text;
+            MainWindow.SettingIO.Data.SubGraphName = SubGraphName.Text;
+            MainWindow.SettingIO.Data.SubGraphOpacity = Convert.ToInt32(SubGraphOpacity.Text);
+            MainWindow.SettingIO.Data.UndenoisedGraphOpacity = Convert.ToInt32(UndenoisedGraphOpacity.Text);
+            MainWindow.SettingIO.Data.BurningTimeOpacity = Convert.ToInt32(BurningTimeOpacity.Text);
+            MainWindow.SettingIO.Data.IgnitionDetectionThreshold = Convert.ToInt32(IgnitionDetectionThreshold.Text);
+            MainWindow.SettingIO.Data.BurnoutDetectionThreshold = Convert.ToInt32(BurnoutDetectionThreshold.Text);
+            MainWindow.SettingIO.Data.PrefixOfTimeCSV = Convert.ToDouble(PrefixOfTimeCSV.Text);
+            MainWindow.SettingIO.Data.PrefixOfTimeBIN = Convert.ToDouble(PrefixOfTimeBIN.Text);
+            MainWindow.SettingIO.Data.SlopeCSV = Convert.ToDouble(SlopeCSV.Text);
+            MainWindow.SettingIO.Data.InterceptCSV = Convert.ToDouble(InterceptCSV.Text);
+            MainWindow.SettingIO.Data.SlopeBIN = Convert.ToDouble(SlopeBIN.Text);
+            MainWindow.SettingIO.Data.InterceptBIN = Convert.ToDouble(InterceptBIN.Text);
+        }
+
         public SettingPage()
         {
             InitializeComponent();
             try
             {
-                if(MainWindow.SettingIO.IsConfigFileExist())
+                if (MainWindow.SettingIO.IsConfigFileExist())
                     MainWindow.SettingIO.LoadConfig();
-                MainGraph.IsChecked = MainWindow.SettingIO.Data.MainGraph;
-                SubGraph.IsChecked = MainWindow.SettingIO.Data.SubGraph;
-                BurningTime.IsChecked = MainWindow.SettingIO.Data.BurningTime;
-                MaxThrust.IsChecked = MainWindow.SettingIO.Data.MaxThrust;
-                AverageThrust.IsChecked = MainWindow.SettingIO.Data.AverageThrust;
-                TotalImpulse.IsChecked = MainWindow.SettingIO.Data.TotalImpulse;
-                MainGraphName.Text = MainWindow.SettingIO.Data.MainGraphName;
-                SubGraphName.Text = MainWindow.SettingIO.Data.SubGraphName;
-                SubGraphOpacity.Text = MainWindow.SettingIO.Data.SubGraphOpacity.ToString();
-                UndenoisedGraphOpacity.Text = MainWindow.SettingIO.Data.UndenoisedGraphOpacity.ToString();
-                BurningTimeOpacity.Text = MainWindow.SettingIO.Data.BurningTimeOpacity.ToString();
-                IgnitionDetectionThreshold.Text = MainWindow.SettingIO.Data.IgnitionDetectionThreshold.ToString();
-                BurnoutDetectionThreshold.Text = MainWindow.SettingIO.Data.BurnoutDetectionThreshold.ToString();
-                PrefixOfTimeCSV.Text = MainWindow.SettingIO.Data.PrefixOfTimeCSV.ToString("F6");
-                PrefixOfTimeBIN.Text = MainWindow.SettingIO.Data.PrefixOfTimeBIN.ToString("F6");
-                SlopeCSV.Text = MainWindow.SettingIO.Data.SlopeCSV.ToString();
-                InterceptCSV.Text = MainWindow.SettingIO.Data.InterceptCSV.ToString();
-                SlopeBIN.Text = MainWindow.SettingIO.Data.SlopeBIN.ToString();
-                InterceptBIN.Text = MainWindow.SettingIO.Data.InterceptBIN.ToString();
+                SetConfigToUi();
             }
             catch (Exception ex)
             {
@@ -89,25 +117,7 @@ namespace GraphPlotter2
         {
             try
             {
-                MainWindow.SettingIO.Data.MainGraph = MainGraph.IsChecked ?? true;
-                MainWindow.SettingIO.Data.SubGraph = SubGraph.IsChecked ?? true;
-                MainWindow.SettingIO.Data.BurningTime = BurningTime.IsChecked ?? true;
-                MainWindow.SettingIO.Data.MaxThrust = MaxThrust.IsChecked ?? true;
-                MainWindow.SettingIO.Data.AverageThrust = AverageThrust.IsChecked ?? true;
-                MainWindow.SettingIO.Data.TotalImpulse = TotalImpulse.IsChecked ?? true;
-                MainWindow.SettingIO.Data.MainGraphName = MainGraphName.Text;
-                MainWindow.SettingIO.Data.SubGraphName = SubGraphName.Text;
-                MainWindow.SettingIO.Data.SubGraphOpacity = Convert.ToInt32(SubGraphOpacity.Text);
-                MainWindow.SettingIO.Data.UndenoisedGraphOpacity = Convert.ToInt32(UndenoisedGraphOpacity.Text);
-                MainWindow.SettingIO.Data.BurningTimeOpacity = Convert.ToInt32(BurningTimeOpacity.Text);
-                MainWindow.SettingIO.Data.IgnitionDetectionThreshold = Convert.ToInt32(IgnitionDetectionThreshold.Text);
-                MainWindow.SettingIO.Data.BurnoutDetectionThreshold = Convert.ToInt32(BurnoutDetectionThreshold.Text);
-                MainWindow.SettingIO.Data.PrefixOfTimeCSV = Convert.ToDouble(PrefixOfTimeCSV.Text);
-                MainWindow.SettingIO.Data.PrefixOfTimeBIN = Convert.ToDouble(PrefixOfTimeBIN.Text);
-                MainWindow.SettingIO.Data.SlopeCSV = Convert.ToDouble(SlopeCSV.Text);
-                MainWindow.SettingIO.Data.InterceptCSV = Convert.ToDouble(InterceptCSV.Text);
-                MainWindow.SettingIO.Data.SlopeBIN = Convert.ToDouble(SlopeBIN.Text);
-                MainWindow.SettingIO.Data.InterceptBIN = Convert.ToDouble(InterceptBIN.Text);
+                GetConfigFromUi();
                 MainWindow.SettingIO.WriteConfig();
             }
             catch (Exception ex)
@@ -122,6 +132,15 @@ namespace GraphPlotter2
         {
             if (MessageBox.Show("本当に保存しなくてよいですか？", "確認", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
                 CloseSettingPage();
+        }
+
+        private void InitConfig(object sender, RoutedEventArgs e)
+        {
+            if (MessageBox.Show("本当に設定を初期化しますか？", "確認", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+            {
+                MainWindow.SettingIO.InitConfig();
+                SetConfigToUi();
+            }
         }
     }
 }

@@ -20,6 +20,7 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top" FontSize="14">
             <MenuItem Header="Save the config" Click="SaveConfig"/>
+            <MenuItem Header="Initialize" Click="InitConfig"/>
             <MenuItem Header= "Cancel" Click="Cancel"/>
         </Menu>
         <Grid>
