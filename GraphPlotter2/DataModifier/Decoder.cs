@@ -73,7 +73,7 @@ namespace DataModifier
                     {
                         for (int i = 0; i < chunk.Length; i += 8)
                         {
-                            double time = BitConverter.ToInt32(chunk, i);
+                            double time = BitConverter.ToUInt32(chunk, i);
                             double data = BitConverter.ToInt32(chunk, i + 4) * linearEqCoefA + linearEqCoefB;
                             localData.Add((time, data));
                         }
