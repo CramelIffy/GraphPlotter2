@@ -26,6 +26,15 @@ namespace GraphPlotter2
             screen.Source = defaultUri;
         }
 
+        protected virtual void WindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (MessageBox.Show("本当に終了しますか？", "終了", MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
+            {
+                e.Cancel = true;
+                return;
+            }
+        }
+
         /// <summary>
         /// 画面遷移(Setting画面へ)
         /// </summary>
