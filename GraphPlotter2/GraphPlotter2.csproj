@@ -8,6 +8,7 @@
     <Company>$(Authors)</Company>
     <IsPublishable>True</IsPublishable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <PublishSingleFile>true</PublishSingleFile>
     <ApplicationIcon>Image\Icon.ico</ApplicationIcon>
   </PropertyGroup>
 

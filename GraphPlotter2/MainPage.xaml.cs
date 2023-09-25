@@ -275,7 +275,8 @@ namespace GraphPlotter2
                 thrustDatas.GetData(true);
                 AutoScaleForThrustCurve();
                 MainPlot.Refresh();
-            }catch (Exception)
+            }
+            catch (Exception)
             {
 
             }
@@ -283,10 +284,6 @@ namespace GraphPlotter2
         private void OpenAbout(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("GraphPlotter V2.0.3\nMade by Fujie Riu\nTokushimaUniv. Rocket Project", "バージョン情報", MessageBoxButton.OK);
-        }
-        private void Exit(object sender, RoutedEventArgs e)
-        {
-            if (MessageBox.Show("本当に終了しますか？", "終了", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes) Application.Current.Shutdown();
         }
     }
 }
