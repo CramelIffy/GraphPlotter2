@@ -71,7 +71,7 @@ namespace GraphPlotter2
             {
                 MainPlot.Plot.AddFill(
                     thrustDatas.GetData(true).time.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray(),
-                    thrustDatas.GetData(true).thrust.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray()
+                    thrustDatas.GetData(true).denoisedThrust.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray()
                     , 0, Color.FromArgb(burningOpacity, Color.Black));
 
                 var burnoutLine = MainPlot.Plot.AddVerticalLine(thrustDatas.GetData(true).burnTime, Color.DarkRed, 2, LineStyle.Dot);

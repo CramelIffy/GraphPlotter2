@@ -186,9 +186,9 @@ namespace DataModifier
 
             // 力積の計算
             var impulseTemp = new double[tempData.burnoutIndex - tempData.ignitionIndex + 1];
-            Parallel.For(tempData.ignitionIndex, tempData.burnoutIndex, i =>
+            Parallel.For(tempData.ignitionIndex + 1, tempData.burnoutIndex + 1, i =>
             {
-                impulseTemp[i - tempData.ignitionIndex] = (tempData.thrust[i + 1] + tempData.thrust[i]) * (tempData.time[i + 1] - tempData.time[i]);
+                impulseTemp[i - tempData.ignitionIndex - 1] = (tempData.thrust[i] + tempData.thrust[i - 1]) * (tempData.time[i] - tempData.time[i - 1]);
             });
             Array.Sort(impulseTemp); // 極端に大きな値と小さな値が混在するとき、有効数字の関係で小さい値が消えてしまうことがあるためソート(おそらく不必要だとは思われるが一応)
             tempData.impluse = impulseTemp.Sum() / 2;
