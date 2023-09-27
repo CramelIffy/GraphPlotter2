@@ -196,6 +196,8 @@ namespace GraphPlotter2
 
         private void InitScreen(object sender, RoutedEventArgs e)
         {
+            if (MessageBox.Show("本当にグラフを初期化しても良いですか？", "確認", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.No)
+                return;
             thrustDatas.InitData(true);
             thrustDatas.InitData(false);
             MainPlot.Plot.Clear();
