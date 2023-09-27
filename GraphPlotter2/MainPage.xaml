@@ -16,7 +16,6 @@
                     <MenuItem Header="Bin" Click="OpenBin"/>
                     <MenuItem Header="CSV" Click="OpenCsv"/>
                 </MenuItem>
-                <MenuItem Header="InitScreen" Click="InitScreen"/>
                 <MenuItem Header="Save...">
                     <MenuItem Header="Save Image" Click="SaveImage"/>
                     <MenuItem Header="Save Data As CSV" Click="SaveDataAsCsv"/>
@@ -24,6 +23,7 @@
             </MenuItem>
             <MenuItem Header="Settings" Click="OpenSetting"/>
             <MenuItem Header="InitScale" Click="InitScale"/>
+            <MenuItem Header="InitScreen" Click="InitScreen"/>
             <MenuItem Header="About" Click="OpenAbout"/>
         </Menu>
         <Frame Name="screen" NavigationUIVisibility="Hidden"/>
