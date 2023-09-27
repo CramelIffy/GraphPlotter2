@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using MathNet.Numerics.LinearAlgebra;
 using System.Windows;
-using MathNet.Numerics.LinearAlgebra;
 
 namespace DataModifier
 {
@@ -166,7 +161,7 @@ namespace DataModifier
                 if (tempData.ignitionIndex == tempData.burnoutIndex)
                 {
                     if (iterMax - iterCount != 0)
-                        if(MessageBox.Show("燃焼時間推定に失敗しました。\n再挑戦しますか。\n(残り再挑戦可能回数: " + (iterMax - iterCount) + ")", "エラー", MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.No) 
+                        if (MessageBox.Show("燃焼時間推定に失敗しました。\n再挑戦しますか。\n(残り再挑戦可能回数: " + (iterMax - iterCount) + ")", "エラー", MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.No)
                             throw BurningTimeEstimationFailed;
                     decodedData.Item1.RemoveAt(maxThrustIndex);
                 }

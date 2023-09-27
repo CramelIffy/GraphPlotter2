@@ -1,14 +1,11 @@
 ﻿using Microsoft.Win32;
-using System;
+using ScottPlot;
+using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
-using System.Drawing;
-using ScottPlot;
-using ScottPlot.Plottable;
 
 namespace GraphPlotter2
 {
@@ -206,7 +203,7 @@ namespace GraphPlotter2
 
         private void SaveImage(object sender, RoutedEventArgs e)
         {
-            SaveFileDialog sfd = new SaveFileDialog();
+            SaveFileDialog sfd = new();
             sfd.FileName = "Plot.png";
             sfd.Filter = "PNGファイル(*.png)|*.png|JPGファイル(*.jpg)|*.jpg";
             sfd.Title = "保存先のファイルを選択してください";
