@@ -164,7 +164,12 @@ namespace DataModifier
 
                 // 燃焼時間推定が成功したかどうかの判定
                 if (tempData.ignitionIndex == tempData.burnoutIndex)
+                {
+                    if (iterMax - iterCount != 0)
+                        if(MessageBox.Show("燃焼時間推定に失敗しました。\n再挑戦しますか。\n(残り再挑戦可能回数: " + (iterMax - iterCount) + ")", "エラー", MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.No) 
+                            throw BurningTimeEstimationFailed;
                     decodedData.Item1.RemoveAt(maxThrustIndex);
+                }
                 else
                     break;
 
