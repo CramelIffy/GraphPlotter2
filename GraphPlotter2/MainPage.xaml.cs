@@ -218,6 +218,9 @@ namespace GraphPlotter2
 
         private async void SaveDataAsCsv(object sender, RoutedEventArgs e)
         {
+            int startIndex;
+            int endIndex;
+
             try
             {
                 thrustDatas.GetData(true);
@@ -227,6 +230,18 @@ namespace GraphPlotter2
                 MessageBox.Show("データが読み込まれていません", "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+
+            if (MessageBox.Show("データの出力範囲は燃焼中のみで良いですか？\n(" + MessageBoxResult.No.ToString() + "を押すと全データが出力されます)", "確認", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+            {
+                startIndex = thrustDatas.GetData(true).ignitionIndex;
+                endIndex = thrustDatas.GetData(true).burnoutIndex;
+            }
+            else
+            {
+                startIndex = 0;
+                endIndex = thrustDatas.GetData(true).time.Length - 1;
+            }
+
             if (sfd.ShowDialog() == true)
             {
                 string filePath = sfd.FileName;
@@ -238,7 +253,7 @@ namespace GraphPlotter2
 
                     bool noDataWrittenYet = true;
                     StringBuilder buffer = new();
-                    for (int i = thrustDatas.GetData(true).ignitionIndex; i <= thrustDatas.GetData(true).burnoutIndex; i++)
+                    for (int i = startIndex; i <= endIndex; i++)
                     {
                         buffer.Clear();
                         buffer.Append(thrustDatas.GetData(true).time[i].ToString("F7"));
