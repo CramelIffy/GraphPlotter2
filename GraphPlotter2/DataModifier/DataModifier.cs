@@ -100,13 +100,15 @@ namespace DataModifier
             // うまく読み込めるまでループ
             while (++iterCount <= iterMax)
             {
+                // 異常チェック
+                if (decodedData.Item1.Count <= requireDetectionCount * 2 + iterMax)
+                    throw NumOfElementIsTooSmall;
+                // 時間データの逆行補正
+                // InsertionSort(tempData.time, tempData.thrust);
+                decodedData.Item1 = decodedData.Item1.AsParallel().OrderBy(data => data.Time).ToList();
                 // 時間、推力データを配列に変換
                 tempData.time = decodedData.Item1.Select(item => item.Time).ToArray();
                 tempData.thrust = decodedData.Item1.Select(item => item.Data).ToArray();
-                if (tempData.thrust.Length <= requireDetectionCount * 2 + iterMax)
-                    throw NumOfElementIsTooSmall;
-                // 時間データの逆行補正
-                InsertionSort(tempData.time, tempData.thrust);
                 // オフセット除去
                 double thrustOffset = tempData.thrust.OrderBy(x => x).Skip((int)(tempData.thrust.Length * 0.01)).Take((int)(tempData.thrust.Length * 0.01) + 1).Average();
                 tempData.thrust = tempData.thrust.AsParallel().Select(x => x - thrustOffset).ToArray();

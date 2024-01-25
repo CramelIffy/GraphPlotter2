@@ -63,7 +63,7 @@ namespace DataModifier
             {
                 byte[] fileData = File.ReadAllBytes(filePath);
                 Parallel.ForEach(
-                    fileData.Buffer(16),
+                    fileData.Buffer(8),
                     () => new List<(double Time, double Data)>(),
                     (chunk, state, localData) =>
                     {
@@ -71,8 +71,8 @@ namespace DataModifier
                         {
                             UInt32 rData = BinaryPrimitives.ReadUInt32LittleEndian(chunk.AsSpan(i * 8, 4)) & 0x00FFFFFF;
                             UInt64 rTime = BinaryPrimitives.ReadUInt64LittleEndian(chunk.AsSpan(i * 8, 8)) >> 24;
-                            double time = rTime * 4e-9;
-                            double data = (rData * 2.5 / 8388607 * 20000 / 2.01) * linearEqCoefA + linearEqCoefB;
+                            double time = rTime * timePrefix;
+                            double data = rData * linearEqCoefA + linearEqCoefB;
                             localData.Add((time, data));
                         }
                         return localData;
@@ -90,10 +90,6 @@ namespace DataModifier
                 exception = ex;
                 isSomeDataCannotRead = true;
             }
-
-            for (int i = 1; i < dataList.Count; i++)
-                dataList[i] = (Math.Round(dataList[i - 1].Time + dataList[i].Time), dataList[i].Data);
-            dataList = dataList.AsParallel().Select(x => (x.Time * timePrefix, x.Data)).ToList();
 
             return (dataList, exception, isSomeDataCannotRead);
         }
