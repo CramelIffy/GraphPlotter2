@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Buffers.Binary;
+using System.IO;
 
 namespace DataModifier
 {
@@ -62,14 +63,16 @@ namespace DataModifier
             {
                 byte[] fileData = File.ReadAllBytes(filePath);
                 Parallel.ForEach(
-                    fileData.Buffer(8),
+                    fileData.Buffer(16),
                     () => new List<(double Time, double Data)>(),
                     (chunk, state, localData) =>
                     {
                         for (int i = 0; i < chunk.Length; i += 8)
                         {
-                            double time = BitConverter.ToUInt32(chunk, i);
-                            double data = BitConverter.ToInt32(chunk, i + 4) * linearEqCoefA + linearEqCoefB;
+                            UInt32 rData = BinaryPrimitives.ReadUInt32LittleEndian(chunk.AsSpan(i * 8, 4)) & 0x00FFFFFF;
+                            UInt64 rTime = BinaryPrimitives.ReadUInt64LittleEndian(chunk.AsSpan(i * 8, 8)) >> 24;
+                            double time = rTime * 4e-9;
+                            double data = (rData * 2.5 / 8388607 * 20000 / 2.01) * linearEqCoefA + linearEqCoefB;
                             localData.Add((time, data));
                         }
                         return localData;
