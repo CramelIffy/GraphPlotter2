@@ -110,7 +110,7 @@ namespace DataModifier
                 tempData.time = decodedData.Item1.Select(item => item.Time).ToArray();
                 tempData.thrust = decodedData.Item1.Select(item => item.Data).ToArray();
                 // オフセット除去
-                double thrustOffset = tempData.thrust.OrderBy(x => x).Skip((int)(tempData.thrust.Length * 0.01)).Take((int)(tempData.thrust.Length * 0.01) + 1).Average();
+                double thrustOffset = tempData.thrust.OrderBy(x => x).Skip((int)(tempData.thrust.Length * 0.1)*2).Take((int)(tempData.thrust.Length * 0.1) + 1).Average();
                 tempData.thrust = tempData.thrust.AsParallel().Select(x => x - thrustOffset).ToArray();
                 // ノイズ除去計算
                 tempData.denoisedThrust = filter.Process(tempData.thrust);
