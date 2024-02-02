@@ -72,8 +72,7 @@ namespace DataModifier
                             Int32 rData = BinaryPrimitives.ReadInt32LittleEndian(chunk.AsSpan(i * 8, 4)) & 0x00FFFFFF;
                             if ((rData & 0x00800000) != 0)
                             {
-                                rData >>>= -8;
-                                rData >>= 8;
+                                rData |= ~0xFFFFFF;
                             }
                             UInt64 rTime = BinaryPrimitives.ReadUInt64LittleEndian(chunk.AsSpan(i * 8, 8)) >> 24;
                             double time = rTime * timePrefix;

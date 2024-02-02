@@ -76,7 +76,7 @@ namespace Config
             PrefixOfTimeBIN = 4E-09;
             SlopeCSV = 0.36394252776313896;
             InterceptCSV = -84.211384769940082;
-            SlopeBIN = 0.00296540557;
+            SlopeBIN = 0.000290758;
             InterceptBIN = 0.0;
         }
     }
