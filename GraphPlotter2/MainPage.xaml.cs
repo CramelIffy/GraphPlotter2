@@ -172,7 +172,7 @@ namespace GraphPlotter2
                         calibSlope = MainWindow.SettingIO.Data.SlopeCSV;
                         calibIntercept = MainWindow.SettingIO.Data.InterceptCSV;
                     }
-                    thrustDatas.SetData(ofd.FileName, isBinary, MainWindow.SettingIO.Data.IgnitionDetectionThreshold * 0.01, MainWindow.SettingIO.Data.BurnoutDetectionThreshold * 0.01, timePrefix, calibSlope, calibIntercept);
+                    thrustDatas.SetData(ofd.FileName, isBinary, MainWindow.SettingIO.Data.IgnitionDetectionThreshold * 0.01, MainWindow.SettingIO.Data.BurnoutDetectionThreshold * 0.01, timePrefix, calibSlope, calibIntercept, 20000*timePrefix, 4);
                     PlotData();
                 }
                 catch (Exception ex)

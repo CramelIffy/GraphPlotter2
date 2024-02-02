@@ -79,7 +79,7 @@ namespace DataModifier
             }
         }
 
-        public void SetData(string filePath, bool isBinary, double ignitionDetectionThreshold, double burnoutDetectionThreshold, double timePrefix, double calibSlope, double calibIntercept, int sidePoints = 21, int polynomialOrder = 4)
+        public void SetData(string filePath, bool isBinary, double ignitionDetectionThreshold, double burnoutDetectionThreshold, double timePrefix, double calibSlope, double calibIntercept, int sidePoints, int polynomialOrder)
         {
             const int requireDetectionCount = 20;
             const int iterMax = 20;
