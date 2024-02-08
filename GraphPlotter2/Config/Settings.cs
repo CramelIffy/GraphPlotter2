@@ -49,6 +49,8 @@ namespace Config
 
         public double PrefixOfTimeBIN { get; set; }
 
+        public bool AverageDuplicateTimestamps { get; set; }
+
         public double SlopeCSV { get; set; }
 
         public double InterceptCSV { get; set; }
@@ -74,6 +76,7 @@ namespace Config
             _burnoutdetectionthreshold = 5;
             PrefixOfTimeCSV = 1E-03;
             PrefixOfTimeBIN = 4E-09;
+            AverageDuplicateTimestamps = true;
             SlopeCSV = 0.36394252776313896;
             InterceptCSV = -84.211384769940082;
             SlopeBIN = 0.000290758;

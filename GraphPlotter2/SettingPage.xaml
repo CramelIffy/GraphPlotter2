@@ -86,18 +86,20 @@
                             <StackPanel Orientation="Horizontal" Grid.Row="1">
                                 <GroupBox Header="DataAnalysis" Margin="5,5,5,5" BorderBrush="Black">
                                     <StackPanel Orientation="Vertical">
-                                        <Label Content="IgnitionDetectionThreshold[%]: " HorizontalAlignment="Right"/>
-                                        <Label Content="BurnoutDetectionThreshold[%]: " HorizontalAlignment="Right"/>
-                                        <Label Content="Prefix of Time(CSV): " HorizontalAlignment="Right"/>
-                                        <Label Content="Prefix of Time(BIN): " HorizontalAlignment="Right"/>
+                                        <Label Content="IgnitionDetectionThreshold[%]: " HorizontalAlignment="Right" Height="24" Margin="0,1,0,1"/>
+                                        <Label Content="BurnoutDetectionThreshold[%]: " HorizontalAlignment="Right" Height="24" Margin="0,1,0,1"/>
+                                        <Label Content="Prefix of Time(CSV): " HorizontalAlignment="Right" Height="24" Margin="0,1,0,1"/>
+                                        <Label Content="Prefix of Time(BIN): " HorizontalAlignment="Right" Height="24" Margin="0,1,0,1"/>
+                                        <Label Content="AverageDuplicateTimestamps: " HorizontalAlignment="Right" Height="24" Margin="0,1,0,1"/>
                                     </StackPanel>
                                 </GroupBox>
                                 <GroupBox Header="InputValues" Margin="5,5" BorderBrush="Black">
                                     <StackPanel Orientation="Vertical">
-                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="IgnitionDetectionThreshold" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="5"/>
-                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="BurnoutDetectionThreshold" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="5"/>
-                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="PrefixOfTimeCSV" PreviewTextInput="textBoxPrice_PreviewTextInput_withDecimal" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="0.001"/>
-                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="PrefixOfTimeBIN" PreviewTextInput="textBoxPrice_PreviewTextInput_withDecimal" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="0.001"/>
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="IgnitionDetectionThreshold" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="5" Height="24"/>
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="BurnoutDetectionThreshold" PreviewTextInput="textBoxPrice_PreviewTextInput" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="5" Height="24"/>
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="PrefixOfTimeCSV" PreviewTextInput="textBoxPrice_PreviewTextInput_withDecimal" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="0.001" Height="24"/>
+                                        <TextBox Style="{DynamicResource GraphSettingInput}" Margin="0,1,0,1" x:Name="PrefixOfTimeBIN" PreviewTextInput="textBoxPrice_PreviewTextInput_withDecimal" CommandManager.PreviewExecuted="textBoxPrice_PreviewExecuted" Text="0.001" Height="24"/>
+                                        <CheckBox Margin="0,1,0,1" x:Name="AverageDuplicateTimestamps" Height="24" HorizontalAlignment="Center" VerticalAlignment="Center" IsChecked="True"/>
                                     </StackPanel>
                                 </GroupBox>
                             </StackPanel>

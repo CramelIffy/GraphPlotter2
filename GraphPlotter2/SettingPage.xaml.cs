@@ -34,6 +34,7 @@ namespace GraphPlotter2
             BurnoutDetectionThreshold.Text = MainWindow.SettingIO.Data.BurnoutDetectionThreshold.ToString();
             PrefixOfTimeCSV.Text = MainWindow.SettingIO.Data.PrefixOfTimeCSV.ToString("F10");
             PrefixOfTimeBIN.Text = MainWindow.SettingIO.Data.PrefixOfTimeBIN.ToString("F10");
+            AverageDuplicateTimestamps.IsChecked = MainWindow.SettingIO.Data.AverageDuplicateTimestamps;
             SlopeCSV.Text = MainWindow.SettingIO.Data.SlopeCSV.ToString();
             InterceptCSV.Text = MainWindow.SettingIO.Data.InterceptCSV.ToString();
             SlopeBIN.Text = MainWindow.SettingIO.Data.SlopeBIN.ToString();
@@ -57,6 +58,7 @@ namespace GraphPlotter2
             MainWindow.SettingIO.Data.BurnoutDetectionThreshold = Convert.ToInt32(BurnoutDetectionThreshold.Text);
             MainWindow.SettingIO.Data.PrefixOfTimeCSV = Convert.ToDouble(PrefixOfTimeCSV.Text);
             MainWindow.SettingIO.Data.PrefixOfTimeBIN = Convert.ToDouble(PrefixOfTimeBIN.Text);
+            MainWindow.SettingIO.Data.AverageDuplicateTimestamps = AverageDuplicateTimestamps.IsChecked ?? true;
             MainWindow.SettingIO.Data.SlopeCSV = Convert.ToDouble(SlopeCSV.Text);
             MainWindow.SettingIO.Data.InterceptCSV = Convert.ToDouble(InterceptCSV.Text);
             MainWindow.SettingIO.Data.SlopeBIN = Convert.ToDouble(SlopeBIN.Text);
