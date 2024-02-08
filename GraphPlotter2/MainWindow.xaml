@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:GraphPlotter2"
         mc:Ignorable="d"
         Background="WhiteSmoke"
-        Title="Graph Plotter" Height="900" Width="1600"
+        Title="Graph Plotter" Height="600" Width="1000"
         Icon="/Image/Icon.png"
         Closing="WindowClosing"
         WindowState="Maximized">
