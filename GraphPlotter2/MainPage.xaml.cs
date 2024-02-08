@@ -299,7 +299,7 @@ namespace GraphPlotter2
         }
         private void OpenAbout(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("GraphPlotter V2.0.4\nMade by Fujie Riu\nTokushimaUniv. Rocket Project", "バージョン情報", MessageBoxButton.OK);
+            MessageBox.Show("GraphPlotter V2.0.5\nMade by Fujie Riu\nTokushimaUniv. Rocket Project", "バージョン情報", MessageBoxButton.OK);
         }
     }
 }
