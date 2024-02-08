@@ -7,8 +7,9 @@
         mc:Ignorable="d"
         Title="Progress" Height="120" Width="300" WindowStyle="None" ResizeMode="NoResize" WindowStartupLocation="CenterScreen">
     <Grid>
-        <ProgressBar x:Name="progressBar" HorizontalAlignment="Center" Height="15" Margin="0,75,0,0" VerticalAlignment="Top" Width="280"/>
+        <ProgressBar x:Name="progressBar" HorizontalAlignment="Center" Height="15" Margin="0,72,0,0" VerticalAlignment="Top" Width="280"/>
         <Label x:Name="processingTitle" Content="Processing" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="16"/>
-        <Label x:Name="processingDetail" Content="Proc" HorizontalAlignment="Left" Margin="10,52,0,0" VerticalAlignment="Top" FontSize="10"/>
+        <Label x:Name="processingDetail" Content="Proc" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Center" FontSize="10"/>
+        <Label x:Name="progressCounter" Content="0.00/100" HorizontalAlignment="Right" Margin="0,87,10,0" VerticalAlignment="Top" FontSize="10"/>
     </Grid>
 </Window>

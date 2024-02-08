@@ -19,17 +19,19 @@ namespace GraphPlotter2
             {
                 progressNum = progress;
                 progressBar.Value = progressNum * 100 / maxProcNum;
+                progressCounter.Content = progressBar.Value.ToString("F") + "/100";
             }
             else
                 progressBar.Dispatcher.Invoke(() => UpdateProgress(progress));
         }
 
-        public void IncreaseProgress(uint deltaProgress = 1)
+        public void IncreaseProgress(double deltaProgress = 1.0)
         {
             if (progressBar.Dispatcher.CheckAccess())
             {
                 progressNum++;
                 progressBar.Value = progressNum * 100 / maxProcNum;
+                progressCounter.Content = progressBar.Value.ToString("F") + "/100";
             }
             else
                 progressBar.Dispatcher.Invoke(() => IncreaseProgress(deltaProgress));
