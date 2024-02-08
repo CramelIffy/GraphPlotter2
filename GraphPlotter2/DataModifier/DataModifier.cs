@@ -296,28 +296,27 @@ namespace DataModifier
             int frameSize = (sidePoints << 1) + 1;
             double[] frame = new double[frameSize];
 
-            Parallel.Invoke(() =>
+            for (int i = 0; i < sidePoints; ++i)
             {
-                double[] frame = new double[frameSize];
                 Array.Copy(samples, frame, frameSize);
-                for (int i = 0; i < sidePoints; ++i)
-                {
-                    output[i] = coefficients.Column(i).DotProduct(Vector<double>.Build.DenseOfArray(frame));
-                }
-            }, () =>
-            {
-                double[] frame = new double[frameSize];
-                for (int n = sidePoints; n < length - sidePoints; ++n)
-                {
-                    Array.ConstrainedCopy(samples, n - sidePoints, frame, 0, frameSize);
-                    output[n] = coefficients.Column(sidePoints).DotProduct(Vector<double>.Build.DenseOfArray(frame));
-                }
-            });
+                output[i] = coefficients.Column(i).DotProduct(Vector<double>.Build.DenseOfArray(frame));
+            }
 
-            Array.ConstrainedCopy(samples, length - frameSize, frame, 0, frameSize);
+            var coef = coefficients.Column(sidePoints);
+            Parallel.For(sidePoints, length - sidePoints,
+                () => new double[frameSize],
+                (n, state, localFrame) =>
+                {
+                    Array.ConstrainedCopy(samples, n - sidePoints, localFrame, 0, frameSize);
+                    output[n] = coef.DotProduct(Vector<double>.Build.DenseOfArray(localFrame));
+                    return localFrame;
+                },
+                    localFrame => { }
+                );
 
             for (int i = 0; i < sidePoints; ++i)
             {
+                Array.ConstrainedCopy(samples, length - frameSize, frame, 0, frameSize);
                 output[length - sidePoints + i] = coefficients.Column(sidePoints + 1 + i).DotProduct(Vector<double>.Build.Dense(frame));
             }
 
