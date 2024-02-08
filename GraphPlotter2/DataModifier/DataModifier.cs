@@ -93,6 +93,7 @@ namespace DataModifier
             {
                 await Task.Run(async () =>
                 {
+                    List<Task<MessageBoxResult>> messageBoxes = new();
                     // データ読み込み
                     progressBar.UpdateStatus("File Reading");
                     progressBar.IncreaseProgress();
@@ -100,9 +101,9 @@ namespace DataModifier
                     if (decodedData.Item2 != null)
                         throw decodedData.Item2;
                     if (decodedData.isSomeDataCannotRead)
-                        MessageBox.Show("一部読み込めないデータが存在しています。", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        messageBoxes.Add(Task.Run(() => MessageBox.Show("一部読み込めないデータが存在しています。", "警告", MessageBoxButton.OK, MessageBoxImage.Warning)));
                     if (decodedData.isClockBack)
-                        MessageBox.Show("時間逆行が発生している箇所があります。\n修正して出力します。", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        messageBoxes.Add(Task.Run(() => MessageBox.Show("時間逆行が発生している箇所があります。\n修正して出力します。", "警告", MessageBoxButton.OK, MessageBoxImage.Warning)));
 
                     DataSet tempData = new();
 
@@ -245,6 +246,9 @@ namespace DataModifier
                     progressBar.UpdateStatus("Complete");
                     progressBar.IncreaseProgress();
                     await Task.Delay(200);
+
+                    foreach (var messageBox in messageBoxes)
+                        _ = await messageBox;
                 });
             }
             catch (Exception)
