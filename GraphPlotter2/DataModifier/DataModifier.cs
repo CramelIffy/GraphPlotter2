@@ -85,11 +85,13 @@ namespace DataModifier
             const int iterMax = 20;
 
             // データ読み込み
-            (List<(double Time, double Data)>, Exception?, bool isSomeDataCannotRead) decodedData = isBinary ? DecodeBinary(filePath, timePrefix, calibSlope, calibIntercept) : DecodeCSV(filePath, timePrefix, calibSlope, calibIntercept);
+            (List<(double Time, double Data)>, Exception?, bool isSomeDataCannotRead, bool isClockBack) decodedData = isBinary ? DecodeBinary(filePath, timePrefix, calibSlope, calibIntercept) : DecodeCSV(filePath, timePrefix, calibSlope, calibIntercept);
             if (decodedData.Item2 != null)
                 throw decodedData.Item2;
             if (decodedData.isSomeDataCannotRead)
-                MessageBox.Show("一部読み込めないデータが存在しています。", "注意", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("一部読み込めないデータが存在しています。", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+            if (decodedData.isClockBack)
+                MessageBox.Show("時間逆行が発生している箇所があります。\n修正して出力します。", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
 
             DataSet tempData = new();
 
@@ -110,7 +112,7 @@ namespace DataModifier
                 tempData.time = decodedData.Item1.Select(item => item.Time).ToArray();
                 tempData.thrust = decodedData.Item1.Select(item => item.Data).ToArray();
                 // オフセット除去
-                double thrustOffset = tempData.thrust.OrderBy(x => x).Skip((int)(tempData.thrust.Length * 0.1)*2).Take((int)(tempData.thrust.Length * 0.1) + 1).Average();
+                double thrustOffset = tempData.thrust.OrderBy(x => x).Skip((int)(tempData.thrust.Length * 0.1) * 2).Take((int)(tempData.thrust.Length * 0.1) + 1).Average();
                 tempData.thrust = tempData.thrust.AsParallel().Select(x => x - thrustOffset).ToArray();
                 // ノイズ除去計算
                 tempData.denoisedThrust = filter.Process(tempData.thrust);
@@ -250,16 +252,17 @@ namespace DataModifier
             int frameSize = (sidePoints << 1) + 1;
             double[] frame = new double[frameSize];
 
-            Array.Copy(samples, frame, frameSize);
-
             Parallel.Invoke(() =>
             {
+                double[] frame = new double[frameSize];
+                Array.Copy(samples, frame, frameSize);
                 for (int i = 0; i < sidePoints; ++i)
                 {
                     output[i] = coefficients.Column(i).DotProduct(Vector<double>.Build.DenseOfArray(frame));
                 }
             }, () =>
             {
+                double[] frame = new double[frameSize];
                 for (int n = sidePoints; n < length - sidePoints; ++n)
                 {
                     Array.ConstrainedCopy(samples, n - sidePoints, frame, 0, frameSize);
