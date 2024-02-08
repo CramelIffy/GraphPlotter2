@@ -79,128 +79,172 @@ namespace DataModifier
             }
         }
 
-        public void SetData(string filePath, bool isBinary, double ignitionDetectionThreshold, double burnoutDetectionThreshold, double timePrefix, double calibSlope, double calibIntercept, int sidePoints, int polynomialOrder)
+        public async Task SetData(string filePath, bool isBinary, double ignitionDetectionThreshold, double burnoutDetectionThreshold, double timePrefix, double calibSlope, double calibIntercept, int sidePoints, int polynomialOrder)
         {
             const int requireDetectionCount = 20;
             const int iterMax = 20;
 
-            // データ読み込み
-            (List<(double Time, double Data)>, Exception?, bool isSomeDataCannotRead, bool isClockBack) decodedData = isBinary ? DecodeBinary(filePath, timePrefix, calibSlope, calibIntercept) : DecodeCSV(filePath, timePrefix, calibSlope, calibIntercept);
-            if (decodedData.Item2 != null)
-                throw decodedData.Item2;
-            if (decodedData.isSomeDataCannotRead)
-                MessageBox.Show("一部読み込めないデータが存在しています。", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
-            if (decodedData.isClockBack)
-                MessageBox.Show("時間逆行が発生している箇所があります。\n修正して出力します。", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+            GraphPlotter2.ProgressBar progressBar = new(14);
+            progressBar.UpdateStatus("Loading");
+            progressBar.Show();
 
-            DataSet tempData = new();
-
-            int iterCount = 0;
-
-            SavitzkyGolayFilter filter = new(sidePoints, polynomialOrder);
-
-            // うまく読み込めるまでループ
-            while (++iterCount <= iterMax)
+            await Task.Run(async () =>
             {
-                // 異常チェック
-                if (decodedData.Item1.Count <= requireDetectionCount * 2 + iterMax)
-                    throw NumOfElementIsTooSmall;
-                // 時間データの逆行補正
-                // InsertionSort(tempData.time, tempData.thrust);
-                decodedData.Item1 = decodedData.Item1.AsParallel().OrderBy(data => data.Time).ToList();
-                // 時間、推力データを配列に変換
-                tempData.time = decodedData.Item1.Select(item => item.Time).ToArray();
-                tempData.thrust = decodedData.Item1.Select(item => item.Data).ToArray();
-                // オフセット除去
-                double thrustOffset = tempData.thrust.OrderBy(x => x).Skip((int)(tempData.thrust.Length * 0.1) * 2).Take((int)(tempData.thrust.Length * 0.1) + 1).Average();
-                tempData.thrust = tempData.thrust.AsParallel().Select(x => x - thrustOffset).ToArray();
-                // ノイズ除去計算
-                tempData.denoisedThrust = filter.Process(tempData.thrust);
-                // 最大値計算
-                tempData.maxThrust = tempData.thrust.Max();
+                // データ読み込み
+                progressBar.UpdateStatus("File Reading");
+                progressBar.IncreaseProgress();
+                (List<(double Time, double Data)>, Exception?, bool isSomeDataCannotRead, bool isClockBack) decodedData = isBinary ? DecodeBinary(filePath, timePrefix, calibSlope, calibIntercept) : DecodeCSV(filePath, timePrefix, calibSlope, calibIntercept);
+                if (decodedData.Item2 != null)
+                    throw decodedData.Item2;
+                if (decodedData.isSomeDataCannotRead)
+                    MessageBox.Show("一部読み込めないデータが存在しています。", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
+                if (decodedData.isClockBack)
+                    MessageBox.Show("時間逆行が発生している箇所があります。\n修正して出力します。", "警告", MessageBoxButton.OK, MessageBoxImage.Warning);
 
-                // 燃焼時間推定
-                // インデックスの初期化
-                tempData.ignitionIndex = 0;
-                tempData.burnoutIndex = tempData.thrust.Length - 1;
-                int maxThrustIndex = Array.IndexOf(tempData.thrust, tempData.maxThrust);
+                DataSet tempData = new();
 
-                int[] detectCount = { 0, 0 };
-                Parallel.Invoke(() =>
+                int iterCount = 0;
+
+                // フィルタ構築
+                progressBar.UpdateStatus("Filter Construction");
+                progressBar.IncreaseProgress();
+                SavitzkyGolayFilter filter = new(sidePoints, polynomialOrder);
+
+                // うまく読み込めるまでループ
+                while (++iterCount <= iterMax)
                 {
-                    for (int i = maxThrustIndex; i >= 0; i--)
-                        if (tempData.denoisedThrust[i] < tempData.maxThrust * ignitionDetectionThreshold)
-                        {
-                            detectCount[0]++;
-                            if (detectCount[0] == requireDetectionCount)
+                    // 異常チェック
+                    progressBar.UpdateStatus("Data Anomaly Check");
+                    progressBar.IncreaseProgress();
+                    if (decodedData.Item1.Count <= requireDetectionCount * 2 + iterMax)
+                        throw NumOfElementIsTooSmall;
+                    // 時間データの逆行補正
+                    progressBar.UpdateStatus("Time Reversal Correction");
+                    progressBar.IncreaseProgress();
+                    // InsertionSort(tempData.time, tempData.thrust);
+                    decodedData.Item1 = decodedData.Item1.AsParallel().OrderBy(data => data.Time).ToList();
+                    // 同一時間データが存在するときは平均を取る
+                    progressBar.UpdateStatus("Same Timestamp Data Modification");
+                    progressBar.IncreaseProgress();
+                    if (decodedData.Item1.AsParallel().GroupBy(data => data.Time).Any(group => group.Count() > 1))
+                        decodedData.Item1 = decodedData.Item1.AsParallel().GroupBy(data => data.Time).Select(group => (Time: group.Key, Data: group.Average(tuple => tuple.Data))).ToList();
+                    // 時間、推力データを配列に変換
+                    progressBar.UpdateStatus("Analysis Preparation");
+                    progressBar.IncreaseProgress();
+                    tempData.time = decodedData.Item1.Select(item => item.Time).ToArray();
+                    tempData.thrust = decodedData.Item1.Select(item => item.Data).ToArray();
+                    // オフセット除去
+                    progressBar.UpdateStatus("Offset Removal");
+                    progressBar.IncreaseProgress();
+                    double thrustOffset = tempData.thrust.OrderBy(x => x).Skip((int)(tempData.thrust.Length * 0.1) * 2).Take((int)(tempData.thrust.Length * 0.1) + 1).Average();
+                    tempData.thrust = tempData.thrust.AsParallel().Select(x => x - thrustOffset).ToArray();
+                    // ノイズ除去計算
+                    progressBar.UpdateStatus("Noise Reduction");
+                    progressBar.IncreaseProgress();
+                    tempData.denoisedThrust = filter.Process(tempData.thrust);
+                    // 最大値計算
+                    progressBar.UpdateStatus("Maximum Thrust Calculation");
+                    progressBar.IncreaseProgress();
+                    tempData.maxThrust = tempData.thrust.Max();
+
+                    // 燃焼時間推定開始
+                    progressBar.UpdateStatus("Burn Time Estimation");
+                    progressBar.IncreaseProgress();
+                    // インデックスの初期化
+                    tempData.ignitionIndex = 0;
+                    tempData.burnoutIndex = tempData.thrust.Length - 1;
+                    int maxThrustIndex = Array.IndexOf(tempData.thrust, tempData.maxThrust);
+
+                    int[] detectCount = { 0, 0 };
+                    Parallel.Invoke(() =>
+                    {
+                        for (int i = maxThrustIndex; i >= 0; i--)
+                            if (tempData.denoisedThrust[i] < tempData.maxThrust * ignitionDetectionThreshold)
                             {
-                                tempData.ignitionIndex = i + (requireDetectionCount - 1);
-                                break;
+                                detectCount[0]++;
+                                if (detectCount[0] == requireDetectionCount)
+                                {
+                                    tempData.ignitionIndex = i + (requireDetectionCount - 1);
+                                    break;
+                                }
                             }
-                        }
-                        else
-                            detectCount[0] = 0;
-                }, () =>
-                {
-                    for (int i = maxThrustIndex; i < tempData.thrust.Length; i++)
-                        if (tempData.denoisedThrust[i] < tempData.maxThrust * burnoutDetectionThreshold)
-                        {
-                            detectCount[1]++;
-                            if (detectCount[1] == requireDetectionCount)
+                            else
+                                detectCount[0] = 0;
+                    }, () =>
+                    {
+                        for (int i = maxThrustIndex; i < tempData.thrust.Length; i++)
+                            if (tempData.denoisedThrust[i] < tempData.maxThrust * burnoutDetectionThreshold)
                             {
-                                tempData.burnoutIndex = i - (requireDetectionCount - 1);
-                                break;
+                                detectCount[1]++;
+                                if (detectCount[1] == requireDetectionCount)
+                                {
+                                    tempData.burnoutIndex = i - (requireDetectionCount - 1);
+                                    break;
+                                }
                             }
-                        }
-                        else
-                            detectCount[1] = 0;
-                });
-                // 燃焼していないデータ数が少ないときの処理
-                if (detectCount[0] != requireDetectionCount)
-                    tempData.ignitionIndex += detectCount[0];
-                if (detectCount[1] != requireDetectionCount)
-                    tempData.burnoutIndex -= detectCount[1];
+                            else
+                                detectCount[1] = 0;
+                    });
+                    // 燃焼していないデータ数が少ないときの処理
+                    if (detectCount[0] != requireDetectionCount)
+                        tempData.ignitionIndex += detectCount[0];
+                    if (detectCount[1] != requireDetectionCount)
+                        tempData.burnoutIndex -= detectCount[1];
 
-                // 燃焼時間推定が成功したかどうかの判定
-                if (tempData.ignitionIndex == tempData.burnoutIndex)
-                {
-                    if (iterMax - iterCount != 0)
-                        if (MessageBox.Show("燃焼時間推定に失敗しました。\n再挑戦しますか。\n(残り再挑戦可能回数: " + (iterMax - iterCount) + ")", "エラー", MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.No)
-                            throw BurningTimeEstimationFailed;
-                    decodedData.Item1.RemoveAt(maxThrustIndex);
+                    // 燃焼時間推定が成功したかどうかの判定
+                    if (tempData.ignitionIndex == tempData.burnoutIndex)
+                    {
+                        if (iterMax - iterCount != 0)
+                            if (MessageBox.Show("燃焼時間推定に失敗しました。\n再挑戦しますか。\n(残り再挑戦可能回数: " + (iterMax - iterCount) + ")", "エラー", MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.No)
+                                throw BurningTimeEstimationFailed;
+                        decodedData.Item1.RemoveAt(maxThrustIndex);
+                    }
+                    else
+                        break;
+
                 }
+                if (iterCount == iterMax)
+                    throw BurningTimeEstimationFailed;
+
+                tempData.burnTime = tempData.time[tempData.burnoutIndex] - tempData.time[tempData.ignitionIndex];
+                // 燃焼時間推定終了
+
+                // 燃焼開始地点を0に移動
+                progressBar.UpdateStatus("Combustion Start Time Change to Zero Seconds");
+                progressBar.IncreaseProgress();
+                {
+                    double ignitionTime = tempData.time[tempData.ignitionIndex];
+                    tempData.time = tempData.time.AsParallel().Select(x => x - ignitionTime).ToArray();
+                }
+
+                // 平均推力計算
+                progressBar.UpdateStatus("Average Thrust Calculation");
+                progressBar.IncreaseProgress();
+                tempData.avgThrust = tempData.thrust.Skip(tempData.ignitionIndex).Take(tempData.burnoutIndex - tempData.ignitionIndex).Average();
+
+                // 力積の計算
+                progressBar.UpdateStatus("Total Impulse Calculation");
+                progressBar.IncreaseProgress();
+                var impulseTemp = new double[tempData.burnoutIndex - tempData.ignitionIndex + 1];
+                Parallel.For(tempData.ignitionIndex + 1, tempData.burnoutIndex + 1, i =>
+                {
+                    impulseTemp[i - tempData.ignitionIndex - 1] = (tempData.thrust[i] + tempData.thrust[i - 1]) * (tempData.time[i] - tempData.time[i - 1]);
+                });
+                Array.Sort(impulseTemp); // 極端に大きな値と小さな値が混在するとき、有効数字の関係で小さい値が消えてしまうことがあるためソート(おそらく不必要だとは思われるが一応)
+                tempData.impluse = impulseTemp.Sum() / 2;
+
+                if (mainData == null)
+                    mainData = tempData;
                 else
-                    break;
+                    subData = tempData;
 
-            }
-            if (iterCount == iterMax)
-                throw BurningTimeEstimationFailed;
-
-            // 燃焼開始地点を0に移動
-            {
-                double ignitionTime = tempData.time[tempData.ignitionIndex];
-                tempData.time = tempData.time.AsParallel().Select(x => x - ignitionTime).ToArray();
-            }
-
-            // 燃焼時間計算
-            tempData.burnTime = tempData.time[tempData.burnoutIndex] - tempData.time[tempData.ignitionIndex];
-
-            // 平均推力計算
-            tempData.avgThrust = tempData.thrust.Skip(tempData.ignitionIndex).Take(tempData.burnoutIndex - tempData.ignitionIndex).Average();
-
-            // 力積の計算
-            var impulseTemp = new double[tempData.burnoutIndex - tempData.ignitionIndex + 1];
-            Parallel.For(tempData.ignitionIndex + 1, tempData.burnoutIndex + 1, i =>
-            {
-                impulseTemp[i - tempData.ignitionIndex - 1] = (tempData.thrust[i] + tempData.thrust[i - 1]) * (tempData.time[i] - tempData.time[i - 1]);
+                // 完了
+                progressBar.UpdateStatus("Complete");
+                progressBar.IncreaseProgress();
+                await Task.Delay(200);
             });
-            Array.Sort(impulseTemp); // 極端に大きな値と小さな値が混在するとき、有効数字の関係で小さい値が消えてしまうことがあるためソート(おそらく不必要だとは思われるが一応)
-            tempData.impluse = impulseTemp.Sum() / 2;
 
-            if (mainData == null)
-                mainData = tempData;
-            else
-                subData = tempData;
+            progressBar.Close();
         }
 
         public DataSet GetData(bool isMain)

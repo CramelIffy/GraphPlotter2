@@ -142,7 +142,7 @@ namespace GraphPlotter2
             MainPlot.Refresh();
         }
 
-        private void OpenFile(bool isBinary)
+        private async void OpenFile(bool isBinary)
         {
             if (ofd.ShowDialog() == true)
             {
@@ -172,7 +172,7 @@ namespace GraphPlotter2
                         calibSlope = MainWindow.SettingIO.Data.SlopeCSV;
                         calibIntercept = MainWindow.SettingIO.Data.InterceptCSV;
                     }
-                    thrustDatas.SetData(ofd.FileName, isBinary, MainWindow.SettingIO.Data.IgnitionDetectionThreshold * 0.01, MainWindow.SettingIO.Data.BurnoutDetectionThreshold * 0.01, timePrefix, calibSlope, calibIntercept, (int)(timePrefix * -980003 + 1001), 4);
+                    await thrustDatas.SetData(ofd.FileName, isBinary, MainWindow.SettingIO.Data.IgnitionDetectionThreshold * 0.01, MainWindow.SettingIO.Data.BurnoutDetectionThreshold * 0.01, timePrefix, calibSlope, calibIntercept, (int)(timePrefix * -980003 + 1001), 4);
                     PlotData();
                 }
                 catch (Exception ex)
@@ -221,9 +221,11 @@ namespace GraphPlotter2
             int startIndex;
             int endIndex;
 
+            DataModifier.DataSet dataForWrite;
+
             try
             {
-                thrustDatas.GetData(true);
+                dataForWrite = thrustDatas.GetData(true);
             }
             catch (Exception)
             {
@@ -233,13 +235,13 @@ namespace GraphPlotter2
 
             if (MessageBox.Show("データの出力範囲は燃焼中のみで良いですか？\n(" + MessageBoxResult.No.ToString() + "を押すと全データが出力されます)", "確認", MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
             {
-                startIndex = thrustDatas.GetData(true).ignitionIndex;
-                endIndex = thrustDatas.GetData(true).burnoutIndex;
+                startIndex = dataForWrite.ignitionIndex;
+                endIndex = dataForWrite.burnoutIndex;
             }
             else
             {
                 startIndex = 0;
-                endIndex = thrustDatas.GetData(true).time.Length - 1;
+                endIndex = dataForWrite.time.Length - 1;
             }
 
             if (sfd.ShowDialog() == true)
@@ -256,15 +258,15 @@ namespace GraphPlotter2
                     for (int i = startIndex; i <= endIndex; i++)
                     {
                         buffer.Clear();
-                        buffer.Append(thrustDatas.GetData(true).time[i].ToString("F7"));
-                        buffer.Append("," + thrustDatas.GetData(true).thrust[i].ToString("F7"));
-                        buffer.Append("," + thrustDatas.GetData(true).denoisedThrust[i].ToString("F7"));
+                        buffer.Append(dataForWrite.time[i].ToString("F7"));
+                        buffer.Append("," + dataForWrite.thrust[i].ToString("F7"));
+                        buffer.Append("," + dataForWrite.denoisedThrust[i].ToString("F7"));
                         if (noDataWrittenYet)
                         {
-                            buffer.Append("," + thrustDatas.GetData(true).burnTime.ToString("F7"));
-                            buffer.Append("," + thrustDatas.GetData(true).maxThrust.ToString("F7"));
-                            buffer.Append("," + thrustDatas.GetData(true).avgThrust.ToString("F7"));
-                            buffer.Append("," + thrustDatas.GetData(true).impluse.ToString("F7"));
+                            buffer.Append("," + dataForWrite.burnTime.ToString("F7"));
+                            buffer.Append("," + dataForWrite.maxThrust.ToString("F7"));
+                            buffer.Append("," + dataForWrite.avgThrust.ToString("F7"));
+                            buffer.Append("," + dataForWrite.impluse.ToString("F7"));
                             noDataWrittenYet = false;
                         }
 
