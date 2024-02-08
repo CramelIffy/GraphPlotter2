@@ -119,16 +119,16 @@ namespace DataModifier
                     progressBar.IncreaseProgress();
                     if (decodedData.Item1.Count <= requireDetectionCount * 2 + iterMax)
                         throw NumOfElementIsTooSmall;
-                    // 時間データの逆行補正
-                    progressBar.UpdateStatus("Time Reversal Correction");
-                    progressBar.IncreaseProgress();
-                    // InsertionSort(tempData.time, tempData.thrust);
-                    decodedData.Item1 = decodedData.Item1.AsParallel().OrderBy(data => data.Time).ToList();
                     // 同一時間データが存在するときは平均を取る
                     progressBar.UpdateStatus("Same Timestamp Data Modification");
                     progressBar.IncreaseProgress();
                     if (MainWindow.SettingIO.Data.AverageDuplicateTimestamps && decodedData.Item1.AsParallel().GroupBy(data => data.Time).Any(group => group.Count() > 1))
                         decodedData.Item1 = decodedData.Item1.AsParallel().GroupBy(data => data.Time).Select(group => (Time: group.Key, Data: group.Average(tuple => tuple.Data))).ToList();
+                    // 時間データの逆行補正
+                    progressBar.UpdateStatus("Time Reversal Correction");
+                    progressBar.IncreaseProgress();
+                    // InsertionSort(tempData.time, tempData.thrust);
+                    decodedData.Item1 = decodedData.Item1.AsParallel().OrderBy(data => data.Time).ToList();
                     // 時間、推力データを配列に変換
                     progressBar.UpdateStatus("Analysis Preparation");
                     progressBar.IncreaseProgress();
