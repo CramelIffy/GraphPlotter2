@@ -78,6 +78,11 @@ namespace DataModifier
                     () => new List<(double Time, double Data)>(),
                     (chunk, state, localData) =>
                     {
+                        if(chunk.Length % 8 != 0)
+                        {
+                            isSomeDataCannotRead = true;
+                            return localData;
+                        }
                         for (int i = 0; i < chunk.Length; i += 8)
                         {
                             Int32 rData = BinaryPrimitives.ReadInt32LittleEndian(chunk.AsSpan(i * 8, 4)) & 0x00FFFFFF;
