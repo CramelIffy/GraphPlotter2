@@ -37,6 +37,17 @@ namespace GraphPlotter2
                 progressBar.Dispatcher.Invoke(() => IncreaseProgress(deltaProgress));
         }
 
+        public void UpdatePercentProgress(UInt64 microProgress)
+        {
+            if (progressBar.Dispatcher.CheckAccess())
+            {
+                progressBar.Value = progressNum * 100 / maxProcNum + microProgress * 0.01;
+                progressCounter.Content = progressBar.Value.ToString("F") + "/100";
+            }
+            else
+                progressBar.Dispatcher.Invoke(() => IncreaseProgress(microProgress));
+        }
+
         public void UpdateStatus(string text)
         {
             if (processingDetail.Dispatcher.CheckAccess())
