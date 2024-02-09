@@ -246,7 +246,12 @@ namespace GraphPlotter2
 
             if (sfd.ShowDialog() == true)
             {
+                ProgressBar progressBar = new((uint)(endIndex - startIndex + 1));
                 string filePath = sfd.FileName;
+
+                progressBar.UpdateStatus("Saving file…");
+                progressBar.UpdateProgress(0);
+                progressBar.Show();
 
                 using (FileStream fileStream = new(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true))
                 using (StreamWriter writer = new(fileStream, Encoding.UTF8, 4096))
@@ -271,8 +276,11 @@ namespace GraphPlotter2
                         }
 
                         await writer.WriteLineAsync(buffer.ToString());
+                        progressBar.UpdateProgress(i - startIndex + 1);
                     }
                 }
+
+                progressBar.Close();
 
                 MessageBox.Show("ファイルの出力が完了しました", "出力完了", MessageBoxButton.OK, MessageBoxImage.Information);
             }
