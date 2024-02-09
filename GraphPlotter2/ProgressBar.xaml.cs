@@ -29,7 +29,7 @@ namespace GraphPlotter2
         {
             if (progressBar.Dispatcher.CheckAccess())
             {
-                progressNum++;
+                progressNum += deltaProgress;
                 progressBar.Value = progressNum * 100 / maxProcNum;
                 progressCounter.Content = progressBar.Value.ToString("F") + "/100";
             }
