@@ -41,6 +41,8 @@ namespace DataModifier
         private Exception NumOfElementIsTooSmall;
         private Exception BurningTimeEstimationFailed;
 
+        private GraphPlotter2.ProgressBar progressBar;
+
         public DataModifier()
         {
             mainData = null;
@@ -48,6 +50,8 @@ namespace DataModifier
 
             NumOfElementIsTooSmall = new Exception("The number of data read is too small");
             BurningTimeEstimationFailed = new Exception("Burn time estimation failed");
+
+            progressBar = new ProgressBar(14);
         }
 
         public void InitData(bool isMain)
@@ -58,34 +62,11 @@ namespace DataModifier
                 subData = null;
         }
 
-        private static void InsertionSort(double[] time, double[] thrust)
-        {
-            int length = time.Length;
-
-            for (int i = 1; i < length; i++)
-            {
-                double currentTime = time[i];
-                double currentThrust = thrust[i];
-                int j = i - 1;
-
-                while (j >= 0 && time[j] > currentTime)
-                {
-                    time[j + 1] = time[j];
-                    thrust[j + 1] = thrust[j];
-                    j--;
-                }
-
-                time[j + 1] = currentTime;
-                thrust[j + 1] = currentThrust;
-            }
-        }
-
         public async Task SetData(string filePath, bool isBinary, double ignitionDetectionThreshold, double burnoutDetectionThreshold, double timePrefix, double calibSlope, double calibIntercept, int sidePoints, int polynomialOrder)
         {
             const int requireDetectionCount = 20;
             const int iterMax = 20;
 
-            GraphPlotter2.ProgressBar progressBar = new(14);
             progressBar.UpdateStatus("Loading");
             progressBar.Show();
 
