@@ -144,6 +144,7 @@ namespace GraphPlotter2
 
         private async void OpenFile(bool isBinary)
         {
+            ofd.Filter = isBinary ? "GraphPlotter2用バイナリデータ (*.gpb)|*.gpb|すべてのファイル (*.*)|*.*" : "CSVファイル (*.csv)|*.csv|すべてのファイル (*.*)|*.*";
             if (ofd.ShowDialog() == true)
             {
                 try
