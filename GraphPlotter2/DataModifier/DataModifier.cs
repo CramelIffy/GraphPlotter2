@@ -77,7 +77,6 @@ namespace DataModifier
                     List<Task<MessageBoxResult>> messageBoxes = new();
                     // データ読み込み
                     progressBar.UpdateStatus("File Reading");
-                    progressBar.IncreaseProgress();
                     (List<(double Time, double Data)>, Exception?, bool isSomeDataCannotRead, bool isClockBack) decodedData = isBinary ? DecodeBinary(filePath, timePrefix, calibSlope, calibIntercept) : DecodeCSV(filePath, timePrefix, calibSlope, calibIntercept);
                     if (decodedData.Item2 != null)
                         throw decodedData.Item2;
@@ -86,16 +85,18 @@ namespace DataModifier
                     if (decodedData.isClockBack)
                         messageBoxes.Add(Task.Run(() => MessageBox.Show("時間逆行が発生している箇所があります。\n修正して出力します。", "警告", MessageBoxButton.OK, MessageBoxImage.Warning)));
 
+                    progressBar.IncreaseProgress();
+
                     // 時間データの逆行補正
                     progressBar.UpdateStatus("Time Reversal Correction");
-                    progressBar.IncreaseProgress();
                     // InsertionSort(tempData.time, tempData.thrust);
                     if (decodedData.isClockBack)
                         decodedData.Item1 = decodedData.Item1.AsParallel().OrderBy(data => data.Time).ToList();
 
+                    progressBar.IncreaseProgress();
+
                     // 同一時間データが存在するときは平均を取る
                     progressBar.UpdateStatus("Same Timestamp Data Modification");
-                    progressBar.IncreaseProgress();
                     if (MainWindow.SettingIO.Data.AverageDuplicateTimestamps)
                         for (int i = 1; i < decodedData.Item1.Count; i++)
                         {
@@ -112,45 +113,56 @@ namespace DataModifier
                             decodedData.Item1[i - 1] = (decodedData.Item1[i - 1].Time, newData / count);
                         }
 
+                    progressBar.IncreaseProgress();
+
                     DataSet tempData = new();
 
                     int iterCount = 0;
 
                     // フィルタ構築
                     progressBar.UpdateStatus("Filter Construction");
-                    progressBar.IncreaseProgress();
                     SavitzkyGolayFilter filter = new(sidePoints, polynomialOrder);
+
+                    progressBar.IncreaseProgress();
 
                     // うまく読み込めるまでループ
                     while (++iterCount <= iterMax)
                     {
                         // 異常チェック
                         progressBar.UpdateStatus("Data Anomaly Check");
-                        progressBar.IncreaseProgress();
                         if (decodedData.Item1.Count <= requireDetectionCount * 2 + iterMax)
                             throw NumOfElementIsTooSmall;
+
+                        progressBar.IncreaseProgress();
+
                         // 時間、推力データを配列に変換
                         progressBar.UpdateStatus("Analysis Preparation");
-                        progressBar.IncreaseProgress();
                         tempData.time = decodedData.Item1.Select(item => item.Time).ToArray();
                         tempData.thrust = decodedData.Item1.Select(item => item.Data).ToArray();
+
+                        progressBar.IncreaseProgress();
+
                         // オフセット除去
                         progressBar.UpdateStatus("Offset Removal");
-                        progressBar.IncreaseProgress();
                         double thrustOffset = tempData.thrust.OrderBy(x => x).Skip((int)(tempData.thrust.Length * 0.1) * 2).Take((int)(tempData.thrust.Length * 0.1) + 1).Average();
                         tempData.thrust = tempData.thrust.AsParallel().Select(x => x - thrustOffset).ToArray();
+
+                        progressBar.IncreaseProgress();
+
                         // ノイズ除去計算
                         progressBar.UpdateStatus("Noise Reduction");
-                        progressBar.IncreaseProgress();
                         tempData.denoisedThrust = filter.Process(tempData.thrust);
+
+                        progressBar.IncreaseProgress();
+
                         // 最大値計算
                         progressBar.UpdateStatus("Maximum Thrust Calculation");
-                        progressBar.IncreaseProgress();
                         tempData.maxThrust = tempData.thrust.Max();
+
+                        progressBar.IncreaseProgress();
 
                         // 燃焼時間推定開始
                         progressBar.UpdateStatus("Burn Time Estimation");
-                        progressBar.IncreaseProgress();
                         // インデックスの初期化
                         tempData.ignitionIndex = 0;
                         tempData.burnoutIndex = tempData.thrust.Length - 1;
@@ -211,23 +223,24 @@ namespace DataModifier
 
                     tempData.burnTime = tempData.time[tempData.burnoutIndex] - tempData.time[tempData.ignitionIndex];
                     // 燃焼時間推定終了
+                    progressBar.IncreaseProgress();
 
                     // 燃焼開始地点を0に移動
                     progressBar.UpdateStatus("Combustion Start Time Change to Zero Seconds");
-                    progressBar.IncreaseProgress();
                     {
                         double ignitionTime = tempData.time[tempData.ignitionIndex];
                         tempData.time = tempData.time.AsParallel().Select(x => x - ignitionTime).ToArray();
                     }
+                    progressBar.IncreaseProgress();
 
                     // 平均推力計算
                     progressBar.UpdateStatus("Average Thrust Calculation");
-                    progressBar.IncreaseProgress();
                     tempData.avgThrust = tempData.thrust.Skip(tempData.ignitionIndex).Take(tempData.burnoutIndex - tempData.ignitionIndex).Average();
+
+                    progressBar.IncreaseProgress();
 
                     // 力積の計算
                     progressBar.UpdateStatus("Total Impulse Calculation");
-                    progressBar.IncreaseProgress();
                     var impulseTemp = new double[tempData.burnoutIndex - tempData.ignitionIndex + 1];
                     Parallel.For(tempData.ignitionIndex + 1, tempData.burnoutIndex + 1, i =>
                     {
@@ -235,6 +248,8 @@ namespace DataModifier
                     });
                     Array.Sort(impulseTemp); // 極端に大きな値と小さな値が混在するとき、有効数字の関係で小さい値が消えてしまうことがあるためソート(おそらく不必要だとは思われるが一応)
                     tempData.impluse = impulseTemp.Sum() / 2;
+
+                    progressBar.IncreaseProgress();
 
                     if (mainData == null)
                         mainData = tempData;
