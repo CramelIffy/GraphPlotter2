@@ -147,8 +147,8 @@ namespace GraphPlotter2
             ofd.Filter = isBinary ? "GraphPlotter2用バイナリデータ (*.gpb)|*.gpb|すべてのファイル (*.*)|*.*" : "CSVファイル (*.csv)|*.csv|すべてのファイル (*.*)|*.*";
             if (ofd.ShowDialog() == true)
             {
-                //try
-                //{
+                try
+                {
                     try
                     {
                         if (MainWindow.SettingIO.IsConfigFileExist())
@@ -175,12 +175,12 @@ namespace GraphPlotter2
                     }
                     await thrustDatas.SetData(ofd.FileName, isBinary, MainWindow.SettingIO.Data.IgnitionDetectionThreshold * 0.01, MainWindow.SettingIO.Data.BurnoutDetectionThreshold * 0.01, timePrefix, calibSlope, calibIntercept, (int)(timePrefix * -980003 + 1001), 4);
                     PlotData();
-                //}
-                //catch (Exception ex)
-                //{
-                //    MessageBox.Show("読み込みに失敗しました。\nErrorMessage: " + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
-                //}
             }
+                catch (Exception ex)
+                {
+                MessageBox.Show("読み込みに失敗しました。\nErrorMessage: " + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
         }
 
         private void OpenCsv(object sender, RoutedEventArgs e)

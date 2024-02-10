@@ -144,7 +144,7 @@ namespace DataModifier
 
                         // オフセット除去
                         progressBar.UpdateStatus("Offset Removal");
-                        double thrustOffset = tempData.thrust.AsParallel().OrderBy(x => x).Skip((int)(tempData.thrust.Length * 0.1) * 2).Take((int)(tempData.thrust.Length * 0.1) + 1).Average();
+                        double thrustOffset = tempData.thrust.AsParallel().OrderBy(x => x).ToArray().Skip((int)(tempData.thrust.Length * 0.1) * 2).Take((int)(tempData.thrust.Length * 0.1) + 1).Average();
                         tempData.thrust = tempData.thrust.AsParallel().Select(x => x - thrustOffset).ToArray();
 
                         progressBar.IncreaseProgress();
@@ -365,7 +365,7 @@ namespace DataModifier
 
             // 中央部分の処理
             Parallel.For(sidePoints, length - sidePoints,
-                () => (result: new System.Numerics.Vector<double>(), tempVector: new double[vectorSize]),
+                () => (result: new System.Numerics.Vector<double>(), tempVector: new double[vectorSize], tempVectorSimd: new System.Numerics.Vector<double>()),
                 (n, state, local) =>
                 {
                     local.result = System.Numerics.Vector<double>.Zero;
