@@ -276,8 +276,8 @@ namespace DataModifier
     internal sealed class SavitzkyGolayFilter
     {
         private readonly int sidePoints;
-
-        private Matrix<double> coefficients;
+        private System.Numerics.Vector<double>[,] coefficients;
+        private int vectorSize;
 
         public SavitzkyGolayFilter(int sidePoints, int polynomialOrder)
         {
@@ -292,44 +292,101 @@ namespace DataModifier
                 }
             });
 
+            int trialCount = 0;
+            for (; trialCount < 10; trialCount++)
+            {
+                vectorSize = System.Numerics.Vector<double>.Count;
+                if (vectorSize != 0)
+                    break;
+            }
+            if (trialCount == 10)
+                throw new NotSupportedException();
+
             Matrix<double> s = Matrix<double>.Build.DenseOfArray(a);
-            coefficients = s.Multiply(s.TransposeThisAndMultiply(s).Inverse()).Multiply(s.Transpose());
+            s = s.Multiply(s.TransposeThisAndMultiply(s).Inverse()).Multiply(s.Transpose());
+            coefficients = new System.Numerics.Vector<double>[s.ColumnCount, (s.RowCount + vectorSize - 1) / vectorSize];
+            for (int i = 0; i < coefficients.GetLength(0); ++i)
+            {
+                var coefColumn = s.Column(i).ToArray();
+                var coefColumnPart = new double[vectorSize];
+                for (int j = 0; j < coefficients.GetLength(1); ++j)
+                {
+                    int baseIndex = j * vectorSize;
+                    int remainingItems = coefColumn.Length - baseIndex;
+                    if (remainingItems > vectorSize)
+                        remainingItems = vectorSize;
+                    Array.Copy(coefColumn, baseIndex, coefColumnPart, 0, remainingItems);
+                    if (coefColumnPart.Length - remainingItems != 0)
+                        Array.Clear(coefColumnPart, remainingItems, coefColumnPart.Length - remainingItems);
+                    coefficients[i, j] = new System.Numerics.Vector<double>(coefColumnPart);
+                }
+            }
         }
 
-        /// <summary>
-        /// Smoothes the input samples.
-        /// </summary>
-        /// <param name="samples"></param>
-        /// <returns></returns>
         public double[] Process(double[] samples)
         {
             int length = samples.Length;
             double[] output = new double[length];
             int frameSize = (sidePoints << 1) + 1;
-            double[] frame = new double[frameSize];
+            var paddedLength = length + vectorSize - (length % vectorSize);
+            double[] paddedSamples = new double[paddedLength];
+            Array.Copy(samples, paddedSamples, length);
 
             for (int i = 0; i < sidePoints; ++i)
             {
-                Array.Copy(samples, frame, frameSize);
-                output[i] = coefficients.Column(i).DotProduct(Vector<double>.Build.DenseOfArray(frame));
+                System.Numerics.Vector<double> result = System.Numerics.Vector<double>.Zero;
+                int vectorCount = (frameSize + vectorSize - 1) / vectorSize;
+                for (int vectorIndex = 0; vectorIndex < vectorCount; vectorIndex++)
+                {
+                    int baseIndex = vectorIndex * vectorSize;
+                    int remainingItems = frameSize - baseIndex;
+                    if (remainingItems > vectorSize) remainingItems = vectorSize;
+                    double[] tempVector = new double[vectorSize];
+                    Array.Copy(paddedSamples, baseIndex, tempVector, 0, remainingItems);
+                    result += System.Numerics.Vector.Multiply(new System.Numerics.Vector<double>(tempVector), coefficients[i, vectorIndex]);
+                }
+                output[i] = System.Numerics.Vector.Sum(result);
             }
 
-            var coef = coefficients.Column(sidePoints);
+            // 中央部分の処理
             Parallel.For(sidePoints, length - sidePoints,
-                () => new double[frameSize],
-                (n, state, localFrame) =>
+                () => (result: new System.Numerics.Vector<double>(), tempVector: new double[vectorSize]),
+                (n, state, local) =>
                 {
-                    Array.ConstrainedCopy(samples, n - sidePoints, localFrame, 0, frameSize);
-                    output[n] = coef.DotProduct(Vector<double>.Build.DenseOfArray(localFrame));
-                    return localFrame;
-                },
-                    localFrame => { }
-                );
+                    local.result = System.Numerics.Vector<double>.Zero;
+                    int vectorCount = (frameSize + vectorSize - 1) / vectorSize;
+                    for (int vectorIndex = 0; vectorIndex < vectorCount; vectorIndex++)
+                    {
+                        int baseIndex = n - sidePoints + vectorIndex * vectorSize;
+                        int remainingItems = frameSize - vectorIndex * vectorSize;
+                        if (remainingItems > vectorSize) remainingItems = vectorSize;
 
+                        Array.Copy(paddedSamples, baseIndex, local.tempVector, 0, remainingItems);
+                        Array.Clear(local.tempVector, remainingItems, vectorSize - remainingItems);
+
+                        local.result += System.Numerics.Vector.Multiply(new System.Numerics.Vector<double>(local.tempVector), coefficients[sidePoints, vectorIndex]);
+                    }
+                    output[n] = System.Numerics.Vector.Sum(local.result);
+                    return local;
+                },
+                local => { }
+            );
+
+            // 末尾の処理
             for (int i = 0; i < sidePoints; ++i)
             {
-                Array.ConstrainedCopy(samples, length - frameSize, frame, 0, frameSize);
-                output[length - sidePoints + i] = coefficients.Column(sidePoints + 1 + i).DotProduct(Vector<double>.Build.Dense(frame));
+                System.Numerics.Vector<double> result = System.Numerics.Vector<double>.Zero;
+                int vectorCount = (frameSize + vectorSize - 1) / vectorSize;
+                for (int vectorIndex = 0; vectorIndex < vectorCount; vectorIndex++)
+                {
+                    int baseIndex = length - frameSize + vectorIndex * vectorSize;
+                    int remainingItems = frameSize - vectorIndex * vectorSize;
+                    if (remainingItems > vectorSize) remainingItems = vectorSize;
+                    double[] tempVector = new double[vectorSize];
+                    Array.Copy(paddedSamples, baseIndex, tempVector, 0, remainingItems);
+                    result += System.Numerics.Vector.Multiply(new System.Numerics.Vector<double>(tempVector), coefficients[sidePoints + 1 + i, vectorIndex]);
+                }
+                output[length - sidePoints + i] = System.Numerics.Vector.Sum(result);
             }
 
             return output;
