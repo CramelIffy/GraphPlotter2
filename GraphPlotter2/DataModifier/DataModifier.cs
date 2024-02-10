@@ -86,6 +86,32 @@ namespace DataModifier
                     if (decodedData.isClockBack)
                         messageBoxes.Add(Task.Run(() => MessageBox.Show("時間逆行が発生している箇所があります。\n修正して出力します。", "警告", MessageBoxButton.OK, MessageBoxImage.Warning)));
 
+                    // 時間データの逆行補正
+                    progressBar.UpdateStatus("Time Reversal Correction");
+                    progressBar.IncreaseProgress();
+                    // InsertionSort(tempData.time, tempData.thrust);
+                    if (decodedData.isClockBack)
+                        decodedData.Item1 = decodedData.Item1.AsParallel().OrderBy(data => data.Time).ToList();
+
+                    // 同一時間データが存在するときは平均を取る
+                    progressBar.UpdateStatus("Same Timestamp Data Modification");
+                    progressBar.IncreaseProgress();
+                    if (MainWindow.SettingIO.Data.AverageDuplicateTimestamps)
+                        for (int i = 1; i < decodedData.Item1.Count; i++)
+                        {
+                            if (decodedData.Item1[i] != decodedData.Item1[i - 1])
+                                continue;
+                            double newData = decodedData.Item1[i - 1].Data;
+                            uint count = 1;
+                            while (i < decodedData.Item1.Count && decodedData.Item1[i] == decodedData.Item1[i - 1])
+                            {
+                                newData += decodedData.Item1[i].Data;
+                                decodedData.Item1.RemoveAt(i);
+                                count++;
+                            }
+                            decodedData.Item1[i - 1] = (decodedData.Item1[i - 1].Time, newData / count);
+                        }
+
                     DataSet tempData = new();
 
                     int iterCount = 0;
@@ -103,16 +129,6 @@ namespace DataModifier
                         progressBar.IncreaseProgress();
                         if (decodedData.Item1.Count <= requireDetectionCount * 2 + iterMax)
                             throw NumOfElementIsTooSmall;
-                        // 同一時間データが存在するときは平均を取る
-                        progressBar.UpdateStatus("Same Timestamp Data Modification");
-                        progressBar.IncreaseProgress();
-                        if (MainWindow.SettingIO.Data.AverageDuplicateTimestamps && decodedData.Item1.AsParallel().GroupBy(data => data.Time).Any(group => group.Count() > 1))
-                            decodedData.Item1 = decodedData.Item1.AsParallel().GroupBy(data => data.Time).Select(group => (Time: group.Key, Data: group.Average(tuple => tuple.Data))).ToList();
-                        // 時間データの逆行補正
-                        progressBar.UpdateStatus("Time Reversal Correction");
-                        progressBar.IncreaseProgress();
-                        // InsertionSort(tempData.time, tempData.thrust);
-                        decodedData.Item1 = decodedData.Item1.AsParallel().OrderBy(data => data.Time).ToList();
                         // 時間、推力データを配列に変換
                         progressBar.UpdateStatus("Analysis Preparation");
                         progressBar.IncreaseProgress();
@@ -139,7 +155,7 @@ namespace DataModifier
                         tempData.ignitionIndex = 0;
                         tempData.burnoutIndex = tempData.thrust.Length - 1;
                         int maxThrustIndex = Array.IndexOf(tempData.thrust, tempData.maxThrust);
-
+                        // 推定開始
                         int[] detectCount = { 0, 0 };
                         Parallel.Invoke(() =>
                         {
@@ -182,8 +198,9 @@ namespace DataModifier
                             if (iterMax - iterCount != 0)
                                 if (MessageBox.Show("燃焼時間推定に失敗しました。\n再挑戦しますか。\n(残り再挑戦可能回数: " + (iterMax - iterCount) + ")", "エラー", MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.No)
                                     throw BurningTimeEstimationFailed;
+                            progressBar.UpdateStatus("In preparation for Retry");
+                            progressBar.UpdateProgress(4);
                             decodedData.Item1.RemoveAt(maxThrustIndex);
-                            progressBar.UpdateProgress(2);
                         }
                         else
                             break;
