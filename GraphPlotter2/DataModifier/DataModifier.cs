@@ -1,5 +1,6 @@
 ﻿using GraphPlotter2;
 using MathNet.Numerics.LinearAlgebra;
+using System.CodeDom;
 using System.Windows;
 
 namespace DataModifier
@@ -125,6 +126,9 @@ namespace DataModifier
 
                     progressBar.IncreaseProgress();
 
+                    int filterStartIdx = 0;
+                    int filterEndIdx = decodedData.Item1.Count;
+
                     // うまく読み込めるまでループ
                     while (++iterCount <= iterMax)
                     {
@@ -139,6 +143,8 @@ namespace DataModifier
                         progressBar.UpdateStatus("Analysis Preparation");
                         tempData.time = decodedData.Item1.Select(item => item.Time).ToArray();
                         tempData.thrust = decodedData.Item1.Select(item => item.Data).ToArray();
+                        if (tempData.denoisedThrust.Length == 0)
+                            tempData.denoisedThrust = new double[tempData.thrust.Length];
 
                         progressBar.IncreaseProgress();
 
@@ -151,7 +157,7 @@ namespace DataModifier
 
                         // ノイズ除去計算
                         progressBar.UpdateStatus("Noise Reduction");
-                        tempData.denoisedThrust = filter.Process(tempData.thrust);
+                        Array.Copy(filter.Process(tempData.thrust, filterStartIdx, filterEndIdx), filterStartIdx, tempData.denoisedThrust, filterStartIdx, filterEndIdx - filterStartIdx);
 
                         progressBar.IncreaseProgress();
 
@@ -211,8 +217,24 @@ namespace DataModifier
                                 if (MessageBox.Show("燃焼時間推定に失敗しました。\n再挑戦しますか。\n(残り再挑戦可能回数: " + (iterMax - iterCount) + ")", "エラー", MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.No)
                                     throw BurningTimeEstimationFailed;
                             progressBar.UpdateStatus("In preparation for Retry");
-                            progressBar.UpdateProgress(4);
+                            progressBar.UpdateProgress(3);
                             decodedData.Item1.RemoveAt(maxThrustIndex);
+                            tempData.denoisedThrust = tempData.denoisedThrust.AsParallel().AsOrdered().Where((source, index) => index != maxThrustIndex).ToArray();
+                            filterStartIdx = maxThrustIndex - sidePoints - 1;
+                            filterEndIdx = maxThrustIndex + sidePoints + 1;
+                            if (filterStartIdx < 0)
+                            {
+                                filterEndIdx -= filterStartIdx;
+                                filterStartIdx = 0;
+                            }
+                            if (filterEndIdx >= decodedData.Item1.Count)
+                            {
+                                filterStartIdx -= filterEndIdx - decodedData.Item1.Count;
+                                filterEndIdx = decodedData.Item1.Count - 1;
+                            }
+                            if (filterStartIdx < 0 || filterEndIdx >= decodedData.Item1.Count)
+                                throw BurningTimeEstimationFailed;
+                            progressBar.IncreaseProgress();
                         }
                         else
                             break;
@@ -339,16 +361,22 @@ namespace DataModifier
             }
         }
 
-        public double[] Process(double[] samples)
+        public double[] Process(double[] samples, int startIndex = 0, int endIndex = int.MaxValue)
         {
             int length = samples.Length;
+            if (startIndex < 0)
+                startIndex = 0;
+            if (endIndex >= length)
+                endIndex = length - 1;
+            if (endIndex <= startIndex + (sidePoints << 1))
+                throw new ArgumentException("endIndex must be at least twice as large as sidePoints than startIndex.");
             double[] output = new double[length];
             int frameSize = (sidePoints << 1) + 1;
             var paddedLength = length + vectorSize - (length % vectorSize);
             double[] paddedSamples = new double[paddedLength];
             Array.Copy(samples, paddedSamples, length);
 
-            for (int i = 0; i < sidePoints; ++i)
+            for (int i = startIndex; i < sidePoints; ++i)
             {
                 System.Numerics.Vector<double> result = System.Numerics.Vector<double>.Zero;
                 int vectorCount = (frameSize + vectorSize - 1) / vectorSize;
@@ -364,8 +392,10 @@ namespace DataModifier
                 output[i] = System.Numerics.Vector.Sum(result);
             }
 
+            int midStartIdx = Math.Max(sidePoints, startIndex);
+            int midEndIdx = Math.Min(length - sidePoints, endIndex + 1);
             // 中央部分の処理
-            Parallel.For(sidePoints, length - sidePoints,
+            Parallel.For(midStartIdx, midEndIdx,
                 () => (result: new System.Numerics.Vector<double>(), tempVector: new double[vectorSize], tempVectorSimd: new System.Numerics.Vector<double>()),
                 (n, state, local) =>
                 {
@@ -389,7 +419,7 @@ namespace DataModifier
             );
 
             // 末尾の処理
-            for (int i = 0; i < sidePoints; ++i)
+            for (int i = 0; i + length - sidePoints <= endIndex; ++i)
             {
                 System.Numerics.Vector<double> result = System.Numerics.Vector<double>.Zero;
                 int vectorCount = (frameSize + vectorSize - 1) / vectorSize;
