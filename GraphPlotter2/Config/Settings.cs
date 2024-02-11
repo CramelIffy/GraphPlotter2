@@ -70,7 +70,7 @@ namespace Config
             MainGraphName = "MainGraph";
             SubGraphName = "SubGraph";
             _subgraphopacity = 85;
-            _undenoisedgraphgpacity = 35;
+            _undenoisedgraphgpacity = 20;
             _burningtimeopacity = 20;
             _ignitiondetectionthreshold = 5;
             _burnoutdetectionthreshold = 5;
