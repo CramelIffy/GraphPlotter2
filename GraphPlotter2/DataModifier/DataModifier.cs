@@ -1,6 +1,7 @@
 ﻿using GraphPlotter2;
 using MathNet.Numerics.LinearAlgebra;
 using System.CodeDom;
+using System.Linq;
 using System.Windows;
 
 namespace DataModifier
@@ -116,6 +117,13 @@ namespace DataModifier
 
                     progressBar.IncreaseProgress();
 
+                    // オフセット除去
+                    progressBar.UpdateStatus("Offset Removal");
+                    double thrustOffset = decodedData.Item1.AsParallel().OrderBy(x => x.Data).ToArray().Skip((int)(decodedData.Item1.Count * 0.4)).Take((int)(decodedData.Item1.Count * 0.2)).AsParallel().Select(x => x.Data).Average();
+                    decodedData.Item1 = decodedData.Item1.AsParallel().Select(x => (x.Time, x.Data - thrustOffset)).ToList();
+
+                    progressBar.IncreaseProgress();
+
                     DataSet tempData = new();
 
                     int iterCount = 0;
@@ -145,13 +153,6 @@ namespace DataModifier
                         tempData.thrust = decodedData.Item1.Select(item => item.Data).ToArray();
                         if (tempData.denoisedThrust.Length == 0)
                             tempData.denoisedThrust = new double[tempData.thrust.Length];
-
-                        progressBar.IncreaseProgress();
-
-                        // オフセット除去
-                        progressBar.UpdateStatus("Offset Removal");
-                        double thrustOffset = tempData.thrust.AsParallel().OrderBy(x => x).ToArray().Skip((int)(tempData.thrust.Length * 0.1) * 2).Take((int)(tempData.thrust.Length * 0.1) + 1).Average();
-                        tempData.thrust = tempData.thrust.AsParallel().Select(x => x - thrustOffset).ToArray();
 
                         progressBar.IncreaseProgress();
 
@@ -217,7 +218,7 @@ namespace DataModifier
                                 if (MessageBox.Show("燃焼時間推定に失敗しました。\n再挑戦しますか。\n(残り再挑戦可能回数: " + (iterMax - iterCount) + ")", "エラー", MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.No)
                                     throw BurningTimeEstimationFailed;
                             progressBar.UpdateStatus("In preparation for Retry");
-                            progressBar.UpdateProgress(3);
+                            progressBar.UpdateProgress(5 - 1);
                             decodedData.Item1.RemoveAt(maxThrustIndex);
                             tempData.denoisedThrust = tempData.denoisedThrust.AsParallel().AsOrdered().Where((source, index) => index != maxThrustIndex).ToArray();
                             filterStartIdx = maxThrustIndex - sidePoints - 1;
