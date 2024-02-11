@@ -154,6 +154,7 @@ namespace DataModifier
                         // 時間、推力データを配列に変換
                         progressBar.UpdateStatus("Analysis Preparation");
                         tempData.time = decodedData.Item1.Select(item => item.Time).ToArray();
+                        progressBar.UpdatePercentProgress(50);
                         tempData.thrust = decodedData.Item1.Select(item => item.Data).ToArray();
                         if (tempData.denoisedThrust.Length == 0)
                             tempData.denoisedThrust = new double[tempData.thrust.Length];
@@ -218,9 +219,10 @@ namespace DataModifier
                         // 燃焼時間推定が成功したかどうかの判定
                         if (tempData.ignitionIndex == tempData.burnoutIndex)
                         {
-                            progressBar.UpdateStatus("In preparation for Retry");
+                            progressBar.UpdateStatus("In Preparation for Retry");
                             progressBar.UpdateProgress(5 - 1);
                             decodedData.Item1.RemoveAt(maxThrustIndex);
+                            progressBar.UpdatePercentProgress(50);
                             tempData.denoisedThrust = tempData.denoisedThrust.AsParallel().AsOrdered().Where((source, index) => index != maxThrustIndex).ToArray();
                             filterStartIdx = maxThrustIndex - sidePoints - 1;
                             filterEndIdx = maxThrustIndex + sidePoints + 1;
@@ -272,6 +274,7 @@ namespace DataModifier
                     {
                         impulseTemp[i - tempData.ignitionIndex - 1] = (tempData.thrust[i] + tempData.thrust[i - 1]) * (tempData.time[i] - tempData.time[i - 1]);
                     });
+                    progressBar.UpdatePercentProgress(50);
                     Array.Sort(impulseTemp); // 極端に大きな値と小さな値が混在するとき、有効数字の関係で小さい値が消えてしまうことがあるためソート(おそらく不必要だとは思われるが一応)
                     tempData.impluse = impulseTemp.Sum() / 2;
 

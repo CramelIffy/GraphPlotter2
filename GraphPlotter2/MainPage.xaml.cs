@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using ScottPlot;
+using ScottPlot.LayoutEngines;
 using ScottPlot.WPF;
 using System.IO;
 using System.Text;
@@ -48,8 +49,8 @@ namespace GraphPlotter2
 
             plot = MainPlot.Plot;
 
-            plot.Clear();
-            plot.Title(MainWindow.SettingIO.Data.MainGraphName);
+            plot.Clear();;
+            plot.Title(MainWindow.SettingIO.Data.MainGraphName, 32.0f);
             MainPlot.Refresh();
         }
 
@@ -67,20 +68,7 @@ namespace GraphPlotter2
             plot.Clear();
             plot.XLabel("Time (s)");
             plot.YLabel("Thrust (N)");
-            // 燃焼時間を示すグラフを描画
-            if (MainWindow.SettingIO.Data.BurningTime)
-            {
-                var fillPlot = plot.Add.FillY(
-                    thrustDatas.GetData(true).time.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray(),
-                    Enumerable.Repeat(0.0, thrustDatas.GetData(true).time.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray().Length).ToArray(),
-                    thrustDatas.GetData(true).denoisedThrust.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray()
-                    );
-                fillPlot.FillStyle.Color = Color.FromARGB(burningOpacity << 24);
-
-                var burnoutLine = plot.Add.VerticalLine(thrustDatas.GetData(true).burnTime, 2, Color.FromARGB(Colors.DarkRed.ARGB & 0xBFFFFFFF), LinePattern.Dotted);
-                //burnoutLine.X = thrustDatas.GetData(true).thrust[thrustDatas.GetData(true).burnoutIndex];
-                burnoutLine.Text = thrustDatas.GetData(true).burnTime.ToString("F2");
-            }
+            
             // サブグラフ描画
             if (MainWindow.SettingIO.Data.SubGraph)
                 try
@@ -98,6 +86,20 @@ namespace GraphPlotter2
                 var mainGraph = plot.Add.SignalXY(thrustDatas.GetData(true).time, thrustDatas.GetData(true).denoisedThrust, Colors.Black);
                 mainGraph.LineWidth = 2;
             }
+            // 燃焼時間を示すグラフを描画
+            if (MainWindow.SettingIO.Data.BurningTime)
+            {
+                var fillPlot = plot.Add.FillY(
+                    thrustDatas.GetData(true).time.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray(),
+                    Enumerable.Repeat(0.0, thrustDatas.GetData(true).time.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray().Length).ToArray(),
+                    thrustDatas.GetData(true).denoisedThrust.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray()
+                    );
+                fillPlot.FillStyle.Color = Color.FromARGB(burningOpacity << 24);
+
+                var burnoutLine = plot.Add.VerticalLine(thrustDatas.GetData(true).burnTime, 2, Color.FromARGB(Colors.DarkRed.ARGB & 0xBFFFFFFF), LinePattern.Dotted);
+                //burnoutLine.X = thrustDatas.GetData(true).thrust[thrustDatas.GetData(true).burnoutIndex];
+                burnoutLine.Text = "burn time: " + thrustDatas.GetData(true).burnTime.ToString("F2") + " [s]";
+            }
             // 最大推力描画
             if (MainWindow.SettingIO.Data.MaxThrust)
             {
@@ -105,25 +107,25 @@ namespace GraphPlotter2
                 double maxTime = thrustDatas.GetData(true).time[Array.IndexOf(thrustDatas.GetData(true).thrust, maxThrust)];
                 var maxLine = plot.Add.HorizontalLine(maxThrust, 2, Color.FromARGB(Colors.Navy.ARGB & 0xBFFFFFFF), LinePattern.Dotted);
                 //maxLine.Y = maxTime;
-                maxLine.Text = "max: " + maxThrust.ToString("F2");
+                maxLine.Text = "max: " + maxThrust.ToString("F2") + " [N]";
             }
             // 平均推力描画
             if (MainWindow.SettingIO.Data.AverageThrust)
             {
                 var avgLine = plot.Add.HorizontalLine(thrustDatas.GetData(true).avgThrust, 1, Color.FromARGB(0xBF0C0C0C), LinePattern.Dashed);
-                avgLine.Text = "avg: " + thrustDatas.GetData(true).avgThrust.ToString("F2");
+                avgLine.Text = "avg: " + thrustDatas.GetData(true).avgThrust.ToString("F2") + " [N]";
             }
-            // 全力積描画
+            // 凡例の描画
             if (MainWindow.SettingIO.Data.TotalImpulse)
             {
                 List<LegendItem> legends =
                 [
-                    new LegendItem { LineColor = Colors.Black, Marker = MarkerStyle.None, Label = MainWindow.SettingIO.Data.MainGraphName + ": " + thrustDatas.GetData(true).impluse.ToString("F3") + "N·s" },
+                    new LegendItem { LineColor = Colors.Black, Marker = MarkerStyle.None, Label = MainWindow.SettingIO.Data.MainGraphName + ": " + thrustDatas.GetData(true).impluse.ToString("F3") + " [N·s]" },
                 ];
                 if (MainWindow.SettingIO.Data.SubGraph)
                     try
                     {
-                        legends.Add(new LegendItem { LineColor = Colors.Black, Marker = MarkerStyle.None, Label = MainWindow.SettingIO.Data.SubGraphName + ": " + thrustDatas.GetData(false).impluse.ToString("F3") + "N·s" });
+                        legends.Add(new LegendItem { LineColor = Colors.Black, Marker = MarkerStyle.None, Label = MainWindow.SettingIO.Data.SubGraphName + ": " + thrustDatas.GetData(false).impluse.ToString("F3") + " [N·s]" });
                     }
                     catch (Exception)
                     {
