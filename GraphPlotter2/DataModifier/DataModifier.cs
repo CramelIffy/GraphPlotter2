@@ -118,8 +118,12 @@ namespace DataModifier
 
                     // オフセット除去
                     progressBar.UpdateStatus("Offset Removal");
-                    double thrustOffset = decodedData.Item1.AsParallel().OrderBy(x => x.Data).ToArray().Skip((int)(decodedData.Item1.Count * 0.4)).Take((int)(decodedData.Item1.Count * 0.2)).AsParallel().Select(x => x.Data).Average();
-                    decodedData.Item1 = decodedData.Item1.AsParallel().Select(x => (x.Time, x.Data - thrustOffset)).ToList();
+                    {
+                        var sortedDecodedDataItem1 = decodedData.Item1.AsParallel().Select(x => x.Data).ToArray();
+                        Array.Sort(sortedDecodedDataItem1);
+                        double thrustOffset = sortedDecodedDataItem1.Skip((int)(decodedData.Item1.Count * 0.4)).Take((int)(decodedData.Item1.Count * 0.2)).AsParallel().Average();
+                        decodedData.Item1 = decodedData.Item1.AsParallel().AsOrdered().Select(x => (x.Time, x.Data - thrustOffset)).ToList();
+                    }
 
                     progressBar.IncreaseProgress();
 
