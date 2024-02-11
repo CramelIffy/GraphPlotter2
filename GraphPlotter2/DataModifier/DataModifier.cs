@@ -67,7 +67,7 @@ namespace DataModifier
         public async Task SetData(string filePath, bool isBinary, double ignitionDetectionThreshold, double burnoutDetectionThreshold, double timePrefix, double calibSlope, double calibIntercept, int sidePoints, int polynomialOrder)
         {
             const int requireDetectionCount = 20;
-            const int iterMax = 20;
+            const int iterMax = 100;
 
             progressBar.UpdateStatus("Loading");
             progressBar.Show();
@@ -214,9 +214,6 @@ namespace DataModifier
                         // 燃焼時間推定が成功したかどうかの判定
                         if (tempData.ignitionIndex == tempData.burnoutIndex)
                         {
-                            if (iterMax - iterCount != 0)
-                                if (MessageBox.Show("燃焼時間推定に失敗しました。\n再挑戦しますか。\n(残り再挑戦可能回数: " + (iterMax - iterCount) + ")", "エラー", MessageBoxButton.YesNo, MessageBoxImage.Error) == MessageBoxResult.No)
-                                    throw BurningTimeEstimationFailed;
                             progressBar.UpdateStatus("In preparation for Retry");
                             progressBar.UpdateProgress(5 - 1);
                             decodedData.Item1.RemoveAt(maxThrustIndex);
@@ -243,6 +240,8 @@ namespace DataModifier
                     }
                     if (iterCount == iterMax)
                         throw BurningTimeEstimationFailed;
+                    if (iterCount > 1)
+                        _ = Task.Run(() => MessageBox.Show("燃焼時間推定に失敗したため、\n計" + (iterCount - 1) + "個の外れ値と推定される値を削除しました。", "外れ値削除", MessageBoxButton.OK, MessageBoxImage.Information));
 
                     tempData.burnTime = tempData.time[tempData.burnoutIndex] - tempData.time[tempData.ignitionIndex];
                     // 燃焼時間推定終了
