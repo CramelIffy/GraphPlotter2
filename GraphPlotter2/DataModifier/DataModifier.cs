@@ -121,6 +121,7 @@ namespace DataModifier
                     {
                         var sortedDecodedDataItem1 = decodedData.Item1.AsParallel().Select(x => x.Data).ToArray();
                         Array.Sort(sortedDecodedDataItem1);
+                        progressBar.UpdatePercentProgress(50);
                         double thrustOffset = sortedDecodedDataItem1.Skip((int)(decodedData.Item1.Count * 0.4)).Take((int)(decodedData.Item1.Count * 0.2)).AsParallel().Average();
                         decodedData.Item1 = decodedData.Item1.AsParallel().AsOrdered().Select(x => (x.Time, x.Data - thrustOffset)).ToList();
                     }

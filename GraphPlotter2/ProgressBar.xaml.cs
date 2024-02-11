@@ -41,11 +41,11 @@ namespace GraphPlotter2
         {
             if (progressBar.Dispatcher.CheckAccess())
             {
-                progressBar.Value = progressNum * 100 / maxProcNum + microProgress / maxProcNum;
+                progressBar.Value = (progressNum * 100 / maxProcNum) + microProgress * 1.0 / maxProcNum;
                 progressCounter.Content = progressBar.Value.ToString("F") + "/100";
             }
             else
-                progressBar.Dispatcher.Invoke(() => IncreaseProgress(microProgress));
+                progressBar.Dispatcher.Invoke(() => UpdatePercentProgress(microProgress));
         }
 
         public void UpdateStatus(string text)
