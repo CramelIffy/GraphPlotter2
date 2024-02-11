@@ -376,10 +376,10 @@ namespace DataModifier
             double[] paddedSamples = new double[paddedLength];
             Array.Copy(samples, paddedSamples, length);
 
+            int vectorCount = (frameSize + vectorSize - 1) / vectorSize;
             for (int i = startIndex; i < sidePoints; ++i)
             {
                 System.Numerics.Vector<double> result = System.Numerics.Vector<double>.Zero;
-                int vectorCount = (frameSize + vectorSize - 1) / vectorSize;
                 for (int vectorIndex = 0; vectorIndex < vectorCount; vectorIndex++)
                 {
                     int baseIndex = vectorIndex * vectorSize;
@@ -396,21 +396,28 @@ namespace DataModifier
             int midEndIdx = Math.Min(length - sidePoints, endIndex + 1);
             // 中央部分の処理
             Parallel.For(midStartIdx, midEndIdx,
-                () => (result: new System.Numerics.Vector<double>(), tempVector: new double[vectorSize], tempVectorSimd: new System.Numerics.Vector<double>()),
+                () => (result: new System.Numerics.Vector<double>(), tempVector: new double[vectorSize]),
                 (n, state, local) =>
                 {
                     local.result = System.Numerics.Vector<double>.Zero;
-                    int vectorCount = (frameSize + vectorSize - 1) / vectorSize;
+                    int baseIndex = n - sidePoints - vectorSize;
+                    int remainingItems;
+                    Span<double> paddedSamplesSpan = new(paddedSamples);
+                    Span<System.Numerics.Vector<double>> coefSpan = new(coefficients[sidePoints]);
+
                     for (int vectorIndex = 0; vectorIndex < vectorCount; vectorIndex++)
                     {
-                        int baseIndex = n - sidePoints + vectorIndex * vectorSize;
-                        int remainingItems = frameSize - vectorIndex * vectorSize;
-                        if (remainingItems > vectorSize) remainingItems = vectorSize;
+                        baseIndex += vectorSize;
+                        remainingItems = frameSize - vectorIndex * vectorSize;
 
-                        Array.Copy(paddedSamples, baseIndex, local.tempVector, 0, remainingItems);
-                        Array.Clear(local.tempVector, remainingItems, vectorSize - remainingItems);
-
-                        local.result += System.Numerics.Vector.Multiply(new System.Numerics.Vector<double>(local.tempVector), coefficients[sidePoints][vectorIndex]);
+                        if (remainingItems > vectorSize)
+                            local.result += new System.Numerics.Vector<double>(paddedSamplesSpan.Slice(baseIndex, vectorSize)) * coefSpan[vectorIndex];
+                        else
+                        {
+                            Array.Copy(paddedSamples, baseIndex, local.tempVector, 0, remainingItems);
+                            Array.Clear(local.tempVector, remainingItems, vectorSize - remainingItems);
+                            local.result += new System.Numerics.Vector<double>(local.tempVector) * coefSpan[vectorIndex];
+                        }
                     }
                     output[n] = System.Numerics.Vector.Sum(local.result);
                     return local;
@@ -422,7 +429,6 @@ namespace DataModifier
             for (int i = 0; i + length - sidePoints <= endIndex; ++i)
             {
                 System.Numerics.Vector<double> result = System.Numerics.Vector<double>.Zero;
-                int vectorCount = (frameSize + vectorSize - 1) / vectorSize;
                 for (int vectorIndex = 0; vectorIndex < vectorCount; vectorIndex++)
                 {
                     int baseIndex = length - frameSize + vectorIndex * vectorSize;
