@@ -1,11 +1,12 @@
 ﻿using Microsoft.Win32;
 using ScottPlot;
-using System.Drawing;
+using ScottPlot.WPF;
 using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
+using Color = ScottPlot.Color;
 
 namespace GraphPlotter2
 {
@@ -16,6 +17,7 @@ namespace GraphPlotter2
     {
         private readonly double plotMarginX;
         private readonly double plotMarginY;
+        private Plot plot;
 
         private readonly OpenFileDialog ofd;
 
@@ -27,7 +29,7 @@ namespace GraphPlotter2
             InitializeComponent();
 
             plotMarginX = 0.1;
-            plotMarginY = 10;
+            plotMarginY = 20;
 
             ofd = new OpenFileDialog
             {
@@ -44,44 +46,46 @@ namespace GraphPlotter2
 
             thrustDatas = new DataModifier.DataModifier();
 
-            MainPlot.Plot.Clear();
-            MainPlot.Plot.Title(MainWindow.SettingIO.Data.MainGraphName);
+            plot = MainPlot.Plot;
+
+            plot.Clear();
+            plot.Title(MainWindow.SettingIO.Data.MainGraphName);
             MainPlot.Refresh();
         }
 
         private void AutoScaleForThrustCurve()
         {
-            MainPlot.Plot.SetAxisLimitsX(thrustDatas.GetData(true).time[thrustDatas.GetData(true).ignitionIndex] - plotMarginX, thrustDatas.GetData(true).time[thrustDatas.GetData(true).burnoutIndex] + plotMarginX);
-            MainPlot.Plot.SetAxisLimitsY(-plotMarginY, thrustDatas.GetData(true).maxThrust + plotMarginY);
+            plot.Axes.SetLimitsX(thrustDatas.GetData(true).time[thrustDatas.GetData(true).ignitionIndex] - plotMarginX, thrustDatas.GetData(true).time[thrustDatas.GetData(true).burnoutIndex] + plotMarginX);
+            plot.Axes.SetLimitsY(-plotMarginY, thrustDatas.GetData(true).maxThrust + plotMarginY);
         }
 
         private void PlotData()
         {
-            int subGraphOpacity = MainWindow.SettingIO.Data.SubGraphOpacity * 255 / 100;
-            int mainGraphUndenoisedOpacity = MainWindow.SettingIO.Data.UndenoisedGraphOpacity * 255 / 100;
-            int burningOpacity = MainWindow.SettingIO.Data.BurningTimeOpacity * 255 / 100;
-            MainPlot.Plot.Clear();
-            MainPlot.Plot.XLabel("Time (s)");
-            MainPlot.Plot.YLabel("Thrust (N)");
+            uint subGraphOpacity = (uint)(MainWindow.SettingIO.Data.SubGraphOpacity * 255 / 100);
+            uint mainGraphUndenoisedOpacity = (uint)(MainWindow.SettingIO.Data.UndenoisedGraphOpacity * 255 / 100);
+            uint burningOpacity = (uint)(MainWindow.SettingIO.Data.BurningTimeOpacity * 255 / 100);
+            plot.Clear();
+            plot.XLabel("Time (s)");
+            plot.YLabel("Thrust (N)");
             // 燃焼時間を示すグラフを描画
             if (MainWindow.SettingIO.Data.BurningTime)
             {
-                MainPlot.Plot.AddFill(
+                var fillPlot = plot.Add.FillY(
                     thrustDatas.GetData(true).time.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray(),
+                    Enumerable.Repeat(0.0, thrustDatas.GetData(true).time.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray().Length).ToArray(),
                     thrustDatas.GetData(true).denoisedThrust.Skip(thrustDatas.GetData(true).ignitionIndex).Take(thrustDatas.GetData(true).burnoutIndex - thrustDatas.GetData(true).ignitionIndex).ToArray()
-                    , 0, Color.FromArgb(burningOpacity, Color.Black));
+                    );
+                fillPlot.FillStyle.Color = Color.FromARGB(burningOpacity << 24);
 
-                var burnoutLine = MainPlot.Plot.AddVerticalLine(thrustDatas.GetData(true).burnTime, Color.DarkRed, 2, LineStyle.Dot);
-                burnoutLine.Max = thrustDatas.GetData(true).thrust[thrustDatas.GetData(true).burnoutIndex];
-                burnoutLine.PositionLabel = true;
-                burnoutLine.PositionLabelBackground = burnoutLine.Color;
+                var burnoutLine = plot.Add.VerticalLine(thrustDatas.GetData(true).burnTime, 2, Color.FromARGB(Colors.DarkRed.ARGB & 0xBFFFFFFF), LinePattern.Dotted);
+                //burnoutLine.X = thrustDatas.GetData(true).thrust[thrustDatas.GetData(true).burnoutIndex];
+                burnoutLine.Text = thrustDatas.GetData(true).burnTime.ToString("F2");
             }
             // サブグラフ描画
             if (MainWindow.SettingIO.Data.SubGraph)
                 try
                 {
-                    var subGraph = MainPlot.Plot.AddSignalXY(thrustDatas.GetData(false).time, thrustDatas.GetData(false).denoisedThrust, Color.FromArgb(subGraphOpacity, Color.Black));
-                    subGraph.MarkerSize = 0;
+                    var subGraph = plot.Add.SignalXY(thrustDatas.GetData(false).time, thrustDatas.GetData(false).denoisedThrust, Color.FromARGB(subGraphOpacity << 24));
                 }
                 catch (Exception)
                 {
@@ -90,52 +94,44 @@ namespace GraphPlotter2
             // メイングラフ描画
             if (MainWindow.SettingIO.Data.MainGraph)
             {
-                MainPlot.Plot.AddSignalXY(thrustDatas.GetData(true).time, thrustDatas.GetData(true).thrust, Color.FromArgb(mainGraphUndenoisedOpacity, Color.Black));
-                var mainGraph = MainPlot.Plot.AddSignalXY(thrustDatas.GetData(true).time, thrustDatas.GetData(true).denoisedThrust, Color.Black);
+                plot.Add.SignalXY(thrustDatas.GetData(true).time, thrustDatas.GetData(true).thrust, Color.FromARGB(mainGraphUndenoisedOpacity << 24));
+                var mainGraph = plot.Add.SignalXY(thrustDatas.GetData(true).time, thrustDatas.GetData(true).denoisedThrust, Colors.Black);
                 mainGraph.LineWidth = 2;
-                mainGraph.MarkerSize = 0;
-            }
-            // 全力積描画
-            if (MainWindow.SettingIO.Data.TotalImpulse)
-            {
-                var ano = MainPlot.Plot.AddAnnotation(MainWindow.SettingIO.Data.MainGraphName + ": " + thrustDatas.GetData(true).impluse.ToString("F3") + "N·s", Alignment.UpperRight);
-                ano.MarginY = 10;
-                ano.Font.Size = 24;
-                ano.Shadow = false;
-                ano.BackgroundColor = Color.White;
-                if (MainWindow.SettingIO.Data.SubGraph)
-                    try
-                    {
-                        string anoStr = MainWindow.SettingIO.Data.SubGraphName + ": " + thrustDatas.GetData(false).impluse.ToString("F3") + "N·s";
-                        var anoSub = MainPlot.Plot.AddAnnotation(anoStr, Alignment.UpperRight);
-                        anoSub.MarginY = 55;
-                        anoSub.Font.Size = 24;
-                        anoSub.Shadow = false;
-                        anoSub.BackgroundColor = Color.White;
-                    }
-                    catch (Exception)
-                    {
-
-                    }
             }
             // 最大推力描画
             if (MainWindow.SettingIO.Data.MaxThrust)
             {
                 double maxThrust = thrustDatas.GetData(true).maxThrust;
                 double maxTime = thrustDatas.GetData(true).time[Array.IndexOf(thrustDatas.GetData(true).thrust, maxThrust)];
-                var maxLine = MainPlot.Plot.AddHorizontalLine(maxThrust, Color.FromArgb(255, Color.Navy), 2, LineStyle.Dot);
-                maxLine.Max = maxTime;
-                maxLine.PositionLabel = true;
-                maxLine.PositionLabelBackground = Color.FromArgb(180, Color.Navy);
-                maxLine.PositionFormatter = x => $"max: \n{x:F2}";
+                var maxLine = plot.Add.HorizontalLine(maxThrust, 2, Color.FromARGB(Colors.Navy.ARGB & 0xBFFFFFFF), LinePattern.Dotted);
+                //maxLine.Y = maxTime;
+                maxLine.Text = "max: " + maxThrust.ToString("F2");
             }
             // 平均推力描画
             if (MainWindow.SettingIO.Data.AverageThrust)
             {
-                var avgLine = MainPlot.Plot.AddHorizontalLine(thrustDatas.GetData(true).avgThrust, Color.FromArgb(255, 12, 12, 12), 1, LineStyle.Dash);
-                avgLine.PositionLabel = true;
-                avgLine.PositionLabelBackground = Color.FromArgb(180, 12, 12, 12);
-                avgLine.PositionFormatter = x => $"avg: \n{x:F2}";
+                var avgLine = plot.Add.HorizontalLine(thrustDatas.GetData(true).avgThrust, 1, Color.FromARGB(0xBF0C0C0C), LinePattern.Dashed);
+                avgLine.Text = "avg: " + thrustDatas.GetData(true).avgThrust.ToString("F2");
+            }
+            // 全力積描画
+            if (MainWindow.SettingIO.Data.TotalImpulse)
+            {
+                List<LegendItem> legends =
+                [
+                    new LegendItem { LineColor = Colors.Black, Marker = MarkerStyle.None, Label = MainWindow.SettingIO.Data.MainGraphName + ": " + thrustDatas.GetData(true).impluse.ToString("F3") + "N·s" },
+                ];
+                if (MainWindow.SettingIO.Data.SubGraph)
+                    try
+                    {
+                        legends.Add(new LegendItem { LineColor = Colors.Black, Marker = MarkerStyle.None, Label = MainWindow.SettingIO.Data.SubGraphName + ": " + thrustDatas.GetData(false).impluse.ToString("F3") + "N·s" });
+                    }
+                    catch (Exception)
+                    {
+                    };
+                plot.HideLegend();
+                plot.ShowLegend(legends);
+                plot.Legend.Location = Alignment.UpperRight;
+                plot.Legend.Font.Size = 20;
             }
             // 拡大縮小
             AutoScaleForThrustCurve();
@@ -175,12 +171,12 @@ namespace GraphPlotter2
                     }
                     await thrustDatas.SetData(ofd.FileName, isBinary, MainWindow.SettingIO.Data.IgnitionDetectionThreshold * 0.01, MainWindow.SettingIO.Data.BurnoutDetectionThreshold * 0.01, timePrefix, calibSlope, calibIntercept, (int)(timePrefix * -980003 + 1001), 4);
                     PlotData();
-            }
+                }
                 catch (Exception ex)
                 {
-                MessageBox.Show("読み込みに失敗しました。\nErrorMessage: " + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("読み込みに失敗しました。\nErrorMessage: " + ex.Message, "エラー", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
-        }
         }
 
         private void OpenCsv(object sender, RoutedEventArgs e)
@@ -198,7 +194,7 @@ namespace GraphPlotter2
                 return;
             thrustDatas.InitData(true);
             thrustDatas.InitData(false);
-            MainPlot.Plot.Clear();
+            plot.Clear();
             MainPlot.Refresh();
         }
 
@@ -206,12 +202,15 @@ namespace GraphPlotter2
         {
             SaveFileDialog sfd = new();
             sfd.FileName = "Plot.png";
-            sfd.Filter = "PNGファイル(*.png)|*.png|JPGファイル(*.jpg)|*.jpg";
+            sfd.Filter = "PNGファイル(*.png)|*.png|SVGファイル(*.svg)|*.svg";
             sfd.Title = "保存先のファイルを選択してください";
 
             if (sfd.ShowDialog() == true)
             {
-                MainPlot.Plot.SaveFig(sfd.FileName, 1280, 720, false, 4);
+                if (Path.GetExtension(sfd.FileName) == ".svg")
+                    plot.SaveSvg(sfd.FileName, 1920, 1080);
+                else
+                    plot.SavePng(sfd.FileName, 1920, 1080);
                 MessageBox.Show("保存しました。", "完了", MessageBoxButton.OK, MessageBoxImage.Information);
             }
 

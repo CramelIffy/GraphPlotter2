@@ -43,8 +43,6 @@ namespace DataModifier
         private Exception NumOfElementIsTooSmall;
         private Exception BurningTimeEstimationFailed;
 
-        private GraphPlotter2.ProgressBar progressBar;
-
         public DataModifier()
         {
             mainData = null;
@@ -53,7 +51,6 @@ namespace DataModifier
             NumOfElementIsTooSmall = new Exception("The number of data read is too small");
             BurningTimeEstimationFailed = new Exception("Burn time estimation failed");
 
-            progressBar = new ProgressBar(14);
         }
 
         public void InitData(bool isMain)
@@ -69,12 +66,14 @@ namespace DataModifier
             const int requireDetectionCount = 20;
             const int iterMax = 100;
 
+            GraphPlotter2.ProgressBar progressBar = new ProgressBar(14);
+
             progressBar.UpdateStatus("Loading");
             progressBar.Show();
 
             try
             {
-                await Task.Run(async () =>
+                var signalProc = await Task.Run(async () =>
                 {
                     List<Task<MessageBoxResult>> messageBoxes = new();
                     // データ読み込み
@@ -285,6 +284,8 @@ namespace DataModifier
 
                     foreach (var messageBox in messageBoxes)
                         _ = await messageBox;
+
+                    return true;
                 });
             }
             catch (Exception)
